@@ -436,7 +436,9 @@
     "lockDescription": "Combien sont faites et la suivante",
     "controlName": "Noter une habitude",
     "controlDescription": "Notez l’habitude choisie d’un seul geste",
-    "chooseHabit": "Choisir une habitude"
+    "chooseHabit": "Choisir une habitude",
+    "heatmapName": "Grille",
+    "heatmapDescription": "L’historique de l’habitude choisie"
   },
   "icloud": {
     "auto": "Sauvegarder sur iCloud",

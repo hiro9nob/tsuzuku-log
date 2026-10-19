@@ -1,0 +1,8 @@
+/* ウィジェットの編集の画面などの文言（App Intents）。キーは Swift の英語の文字列 */
+"Habit" = "Habit";
+"Habits" = "Habits";
+"Choose a habit" = "Choose a habit";
+"Choose habits" = "Choose habits";
+"Leave empty to show today's habits." = "Leave empty to show today's habits.";
+"Log habit" = "Log habit";
+"Habit ID" = "Habit ID";

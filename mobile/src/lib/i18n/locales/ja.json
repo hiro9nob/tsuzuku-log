@@ -406,7 +406,9 @@
     "lockDescription": "きょうできた数と次の習慣",
     "controlName": "習慣を記録",
     "controlDescription": "選んだ習慣をワンタップで記録します",
-    "chooseHabit": "習慣を選ぶ"
+    "chooseHabit": "習慣を選ぶ",
+    "heatmapName": "記録のマス目",
+    "heatmapDescription": "選んだ習慣の、これまでの記録"
   },
   "icloud": {
     "auto": "iCloud にバックアップ",

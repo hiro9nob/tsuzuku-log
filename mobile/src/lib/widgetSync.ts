@@ -14,6 +14,14 @@ const appGroup: unknown = Constants.expoConfig?.extra?.appGroup;
 const storage = Platform.OS === 'ios' && typeof appGroup === 'string' ? new ExtensionStorage(appGroup) : null;
 
 export function syncWidgets(): void {
+  if (Platform.OS === 'android') {
+    // Android：置いてあるウィジェットを描き直す（src/widgets/android）。react-native-android-widget は
+    // 読み込んだ時点で Android の機能を探すので、iOS では読み込まないよう、ここで読み込む
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const { updateAndroidWidgets } = require('@/widgets/android/handler') as typeof import('@/widgets/android/handler');
+    void updateAndroidWidgets().catch((e) => console.warn('[widget] android update failed', e));
+    return;
+  }
   if (!storage) return;
   try {
     const settings = useSettings.getState();
@@ -39,6 +47,8 @@ export function syncWidgets(): void {
         controlName: t('widget.controlName'),
         controlDescription: t('widget.controlDescription'),
         chooseHabit: t('widget.chooseHabit'),
+        heatmapName: t('widget.heatmapName'),
+        heatmapDescription: t('widget.heatmapDescription'),
       },
       now,
     });
@@ -54,7 +64,7 @@ let timer: ReturnType<typeof setTimeout> | null = null;
 
 /** 少し待ってから書く（続けて記録したときにまとめる） */
 export function scheduleWidgetSync(): void {
-  if (!storage) return;
+  if (!storage && Platform.OS !== 'android') return;
   if (timer) clearTimeout(timer);
   timer = setTimeout(() => {
     timer = null;

@@ -23,6 +23,8 @@ export type WidgetStrings = {
   controlName: string;
   controlDescription: string;
   chooseHabit: string;
+  heatmapName: string;
+  heatmapDescription: string;
 };
 
 export type WidgetHabit = {

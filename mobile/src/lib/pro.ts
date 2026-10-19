@@ -1,10 +1,14 @@
 import Constants from 'expo-constants';
 import { AppState, Platform } from 'react-native';
 import Purchases, { type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { create } from 'zustand';
 
 // docs/tsuzuku-log-concept.md「無料とProの線引き」：RevenueCat。Pro は1つの権利（entitlement）で判定する
 export const PRO_ENTITLEMENT = 'pro';
+
+/** 最後に確かめた Pro の状態（Android のウィジェット用） */
+export const CACHED_PRO_KEY = 'ongo.lastIsPro';
 
 // RevenueCat の公開用 API キー（アプリに埋め込んでいいもの）。app.config.ts の variant ごとに書く
 // app.config.ts の null は、設定を書き出すときに {} になるので、文字列のときだけ使う
@@ -79,7 +83,10 @@ export const usePro = create<ProState>((set, get) => ({
     if (!get().available) return;
     try {
       // オフラインでも、SDK が前回の内容を返す。取れなかったときは ready にしない（Pro で決まることを次の機会に回す）
-      set({ ...fromInfo(await Purchases.getCustomerInfo()), ready: true });
+      const info = fromInfo(await Purchases.getCustomerInfo());
+      set({ ...info, ready: true });
+      // Android のウィジェットは課金の SDK を動かさないので、最後に確かめた結果を残しておく
+      void AsyncStorage.setItem(CACHED_PRO_KEY, info.isPro ? '1' : '0').catch(() => {});
     } catch (e) {
       console.warn('[pro] refresh failed', e);
     }

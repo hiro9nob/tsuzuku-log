@@ -406,7 +406,9 @@
     "lockDescription": "한 개수와 다음 습관",
     "controlName": "습관 기록",
     "controlDescription": "고른 습관을 한 번의 탭으로 기록해요",
-    "chooseHabit": "습관 선택"
+    "chooseHabit": "습관 선택",
+    "heatmapName": "기록 격자",
+    "heatmapDescription": "고른 습관의 지금까지 기록"
   },
   "icloud": {
     "auto": "iCloud에 백업",

@@ -1,4 +1,6 @@
+import { AndroidConfig, withStringsXml, type ConfigPlugin } from 'expo/config-plugins';
 import type { ExpoConfig } from 'expo/config';
+import type { WithAndroidWidgetsParams } from 'react-native-android-widget';
 
 type Variant = 'dev' | 'production';
 
@@ -6,14 +8,17 @@ const variant: Variant = (process.env.APP_VARIANT as Variant | undefined) ?? 'de
 
 // Bundle ID は com.horizon.ongo（2026-10-19 に決定。docs/development.md「決めたこと」）
 // RevenueCat の公開用 SDK キーは、RevenueCat のアプリを作ったら入れる。null のあいだは購入できない
+// アプリの名前：英語（ほかの言語も）は Ongo、日本語は つづくログ（locales/ja.json。docs/tsuzuku-log-concept.md「アプリ名」）
 const variants = {
   dev: {
     name: 'Ongo (Dev)',
+    jaLocale: './locales/ja.dev.json',
     bundleId: 'com.horizon.ongo.dev',
     revenueCatApiKey: { ios: null, android: null },
   },
   production: {
     name: 'Ongo',
+    jaLocale: './locales/ja.json',
     bundleId: 'com.horizon.ongo',
     revenueCatApiKey: { ios: null, android: null },
   },
@@ -25,6 +30,53 @@ const v = variants[variant];
 const appGroup = `group.${v.bundleId}`;
 // iCloud バックアップ（iCloud Drive のアプリのフォルダに JSON を置く）
 const iCloudContainer = `iCloud.${v.bundleId}`;
+
+// Android のウィジェット（src/widgets/android）。名前と説明は strings.xml に入れ、日本語は locales/ja.json で訳す
+const androidWidgets: WithAndroidWidgetsParams = {
+  fonts: ['./assets/fonts/Ionicons.ttf'],
+  widgets: [
+    {
+      name: 'OngoToday',
+      label: '@string/widget_ongotoday_label',
+      description: "Log today's habits with a tap",
+      minWidth: '250dp',
+      minHeight: '110dp',
+      targetCellWidth: 4,
+      targetCellHeight: 2,
+      resizeMode: 'horizontal|vertical',
+      previewImage: './assets/widget-preview/today.png',
+      // 1日の区切りをまたいだら描き直す（アプリで記録したときは、アプリから描き直す）
+      updatePeriodMillis: 1800000,
+    },
+    {
+      name: 'OngoHeatmap',
+      label: '@string/widget_ongoheatmap_label',
+      description: 'Your history for the habit you choose',
+      minWidth: '250dp',
+      minHeight: '110dp',
+      targetCellWidth: 4,
+      targetCellHeight: 2,
+      resizeMode: 'horizontal|vertical',
+      previewImage: './assets/widget-preview/heatmap.png',
+      updatePeriodMillis: 1800000,
+      // 置くときに習慣を選ぶ（選ばなければ先頭の習慣）。あとから選び直せる
+      widgetFeatures: 'reconfigurable|configuration_optional',
+    },
+  ],
+};
+
+/** ウィジェットの名前（英語。ほかの言語は locales の android） */
+const withWidgetLabels: ConfigPlugin = (c) =>
+  withStringsXml(c, (mod) => {
+    mod.modResults = AndroidConfig.Strings.setStringItem(
+      [
+        { $: { name: 'widget_ongotoday_label' }, _: "Today's habits" },
+        { $: { name: 'widget_ongoheatmap_label' }, _: 'Habit grid' },
+      ],
+      mod.modResults,
+    );
+    return mod;
+  });
 
 const config: ExpoConfig = {
   name: v.name,
@@ -45,6 +97,8 @@ const config: ExpoConfig = {
       'com.apple.developer.icloud-services': ['CloudDocuments'],
     },
     infoPlist: {
+      // 日本語の端末では、アプリの名前を「つづくログ」にする（locales）
+      CFBundleAllowMixedLocalizations: true,
       // ファイル App の iCloud Drive に「Ongo」のフォルダとして見せる
       NSUbiquitousContainers: {
         [iCloudContainer]: {
@@ -70,14 +124,19 @@ const config: ExpoConfig = {
     },
     predictiveBackGestureEnabled: false,
   },
+  locales: {
+    ja: v.jaLocale,
+  },
   web: {
     output: 'static',
     favicon: './assets/images/favicon.png',
   },
   plugins: [
     'expo-router',
-    // ウィジェット・ロック画面・コントロールセンター（targets/widget）
+    // ウィジェット・ロック画面・コントロールセンター（targets/widget）、Siri とショートカット（targets/intents）
     '@bacons/apple-targets',
+    // Android のウィジェット
+    ['react-native-android-widget', androidWidgets],
     'expo-sqlite',
     'expo-localization',
     'expo-sharing',
@@ -125,4 +184,4 @@ const config: ExpoConfig = {
   },
 };
 
-export default config;
+export default withWidgetLabels(config);

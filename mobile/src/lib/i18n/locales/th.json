@@ -406,7 +406,9 @@
     "lockDescription": "ทำไปกี่อย่างและอย่างถัดไป",
     "controlName": "บันทึกนิสัย",
     "controlDescription": "บันทึกนิสัยที่เลือกด้วยการแตะครั้งเดียว",
-    "chooseHabit": "เลือกนิสัย"
+    "chooseHabit": "เลือกนิสัย",
+    "heatmapName": "ตารางบันทึก",
+    "heatmapDescription": "ประวัติของนิสัยที่เลือก"
   },
   "icloud": {
     "auto": "สำรองข้อมูลไปที่ iCloud",

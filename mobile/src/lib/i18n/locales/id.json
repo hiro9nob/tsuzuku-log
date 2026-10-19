@@ -406,7 +406,9 @@
     "lockDescription": "Berapa yang selesai dan berikutnya",
     "controlName": "Catat kebiasaan",
     "controlDescription": "Catat kebiasaan pilihanmu dengan satu ketukan",
-    "chooseHabit": "Pilih kebiasaan"
+    "chooseHabit": "Pilih kebiasaan",
+    "heatmapName": "Kisi catatan",
+    "heatmapDescription": "Riwayat kebiasaan yang kamu pilih"
   },
   "icloud": {
     "auto": "Cadangkan ke iCloud",

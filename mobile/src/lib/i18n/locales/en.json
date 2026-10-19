@@ -421,7 +421,9 @@
     "lockDescription": "How many are done and what is next",
     "controlName": "Log a habit",
     "controlDescription": "Log the habit you choose with one tap",
-    "chooseHabit": "Choose a habit"
+    "chooseHabit": "Choose a habit",
+    "heatmapName": "Habit grid",
+    "heatmapDescription": "Your history for the habit you choose"
   },
   "icloud": {
     "auto": "Back up to iCloud",

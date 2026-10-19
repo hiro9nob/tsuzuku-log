@@ -23,12 +23,15 @@ struct TodayEntry: TimelineEntry {
 }
 
 enum TodayLoader {
-  static func entry(at date: Date = Date()) -> TodayEntry {
+  /// selected が空なら、きょうやる習慣を並べ替えの順に出す。選んであれば、その習慣を選んだ順に出す（予定の日でなくても）
+  static func entry(at date: Date = Date(), selected: [String] = []) -> TodayEntry {
     guard let snapshot = WidgetSnapshot.load() else { return TodayEntry(date: date, snapshot: nil, items: []) }
     let day = OngoDay.string(for: date, startHour: snapshot.dayStartHour)
     let store = Store.shared
     let entries = store.entries(on: day)
-    let listed = snapshot.habits.filter { ScheduleCheck.listed($0, on: day, weekStart: snapshot.weekStart, store: store) }
+    let listed = selected.isEmpty
+      ? snapshot.habits.filter { ScheduleCheck.listed($0, on: day, weekStart: snapshot.weekStart, store: store) }
+      : selected.compactMap { id in snapshot.habits.first { $0.id == id } }
     let items = listed.map { habit -> TodayItem in
       let e = entries[habit.id]
       // 上限型は期間（日・週・月）の合計を見せる
@@ -47,6 +50,27 @@ enum TodayLoader {
   }
 }
 
+/// きょうの習慣のウィジェット（表示する習慣を選べる）
+struct SelectableTodayProvider: AppIntentTimelineProvider {
+  func placeholder(in context: Context) -> TodayEntry {
+    TodayEntry(date: Date(), snapshot: nil, items: [])
+  }
+
+  func snapshot(for configuration: SelectHabitsIntent, in context: Context) async -> TodayEntry {
+    TodayLoader.entry(selected: configuration.habits?.map(\.id) ?? [])
+  }
+
+  func timeline(for configuration: SelectHabitsIntent, in context: Context) async -> Timeline<TodayEntry> {
+    let now = Date()
+    let selected = configuration.habits?.map(\.id) ?? []
+    let entry = TodayLoader.entry(at: now, selected: selected)
+    // 1日の区切りで次の日に切り替える
+    let next = OngoDay.nextBoundary(after: now, startHour: entry.snapshot?.dayStartHour ?? 0)
+    return Timeline(entries: [entry, TodayLoader.entry(at: next, selected: selected)], policy: .after(next))
+  }
+}
+
+/// ロック画面（すべての習慣で数える）
 struct TodayProvider: TimelineProvider {
   func placeholder(in context: Context) -> TodayEntry {
     TodayEntry(date: Date(), snapshot: nil, items: [])
@@ -253,7 +277,7 @@ struct TodayWidget: Widget {
 
   var body: some WidgetConfiguration {
     let strings = WidgetSnapshot.load()?.strings ?? WidgetSnapshot.fallbackStrings
-    return StaticConfiguration(kind: kind, provider: TodayProvider()) { entry in
+    return AppIntentConfiguration(kind: kind, intent: SelectHabitsIntent.self, provider: SelectableTodayProvider()) { entry in
       TodayWidgetView(entry: entry)
     }
     .configurationDisplayName(Text(strings.widgetName))

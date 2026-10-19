@@ -34,33 +34,13 @@ enum RecordError: Error {
   case failed
 }
 
-/// コントロールで選ぶ習慣
-struct HabitEntity: AppEntity {
-  static var typeDisplayRepresentation: TypeDisplayRepresentation = "Habit"
-  static var defaultQuery = HabitQuery()
+/// きょうの習慣のウィジェット：表示する習慣を選ぶ（選ばなければ、きょうやる習慣を並べ替えの順に出す）
+struct SelectHabitsIntent: WidgetConfigurationIntent {
+  static var title: LocalizedStringResource = "Choose habits"
+  static var description = IntentDescription("Leave empty to show today's habits.")
 
-  let id: String
-  let name: String
+  @Parameter(title: "Habits")
+  var habits: [HabitEntity]?
 
-  var displayRepresentation: DisplayRepresentation {
-    DisplayRepresentation(title: "\(name)")
-  }
-}
-
-struct HabitQuery: EntityQuery {
-  private func all() -> [HabitEntity] {
-    (WidgetSnapshot.load()?.habits ?? []).map { HabitEntity(id: $0.id, name: $0.name) }
-  }
-
-  func entities(for identifiers: [String]) async throws -> [HabitEntity] {
-    all().filter { identifiers.contains($0.id) }
-  }
-
-  func suggestedEntities() async throws -> [HabitEntity] {
-    all()
-  }
-
-  func defaultResult() async -> HabitEntity? {
-    all().first
-  }
+  init() {}
 }

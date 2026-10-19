@@ -26,6 +26,9 @@ struct WidgetSnapshot: Codable {
     let controlName: String
     let controlDescription: String
     let chooseHabit: String
+    /// マス目のウィジェット（あとから足したので、古い内容にはない）
+    let heatmapName: String?
+    let heatmapDescription: String?
   }
 
   struct Habit: Codable, Identifiable {
@@ -108,7 +111,9 @@ struct WidgetSnapshot: Codable {
     lockDescription: "How many are done and what is next",
     controlName: "Log a habit",
     controlDescription: "Log the habit you choose with one tap",
-    chooseHabit: "Choose a habit"
+    chooseHabit: "Choose a habit",
+    heatmapName: "Habit grid",
+    heatmapDescription: "Your history for the habit you choose"
   )
 }
 

@@ -421,7 +421,9 @@
     "lockDescription": "Wie viele erledigt sind und was als Nächstes kommt",
     "controlName": "Gewohnheit eintragen",
     "controlDescription": "Trage die gewählte Gewohnheit mit einem Tipp ein",
-    "chooseHabit": "Gewohnheit wählen"
+    "chooseHabit": "Gewohnheit wählen",
+    "heatmapName": "Raster",
+    "heatmapDescription": "Dein Verlauf für die gewählte Gewohnheit"
   },
   "icloud": {
     "auto": "In iCloud sichern",

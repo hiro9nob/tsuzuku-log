@@ -74,7 +74,8 @@ final class Store {
   }
 
   @discardableResult
-  func record(habit: WidgetSnapshot.Habit, startHour: Int, weekStart: Int) -> Bool {
+  /// toggle が false なら、「できた」の習慣をもう記録してあっても取り消さない（Siri とショートカット）
+  func record(habit: WidgetSnapshot.Habit, startHour: Int, weekStart: Int, toggle: Bool = true) -> Bool {
     let day = OngoDay.string(for: Date(), startHour: startHour)
     guard let db = open() else { return false }
     defer { sqlite3_close(db) }
@@ -84,7 +85,7 @@ final class Store {
     let ok: Bool
     if habit.kind == "check" {
       // できた ↔ 記録なし。消すのは、できたの記録があるときだけ（1つの文で決める）
-      let deleted = exec(db, "DELETE FROM entries WHERE habit_id = ? AND day = ? AND status = 'done'", [habit.id, day]) && sqlite3_changes(db) > 0
+      let deleted = toggle && exec(db, "DELETE FROM entries WHERE habit_id = ? AND day = ? AND status = 'done'", [habit.id, day]) && sqlite3_changes(db) > 0
       ok = deleted ? true : exec(
         db,
         "INSERT INTO entries (habit_id, day, status, value, recorded_at) VALUES (?, ?, 'done', 1, ?) "

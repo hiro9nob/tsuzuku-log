@@ -1,0 +1,5 @@
+/* Siri に話しかける言い方（${applicationName} はアプリの名前、${habit} は習慣） */
+"Log ${habit} in ${applicationName}" = "${habit} in ${applicationName} eintragen";
+"Log a habit in ${applicationName}" = "Gewohnheit in ${applicationName} eintragen";
+"Today's progress in ${applicationName}" = "Heutiger Stand in ${applicationName}";
+"How am I doing in ${applicationName}" = "Wie läuft es in ${applicationName}";

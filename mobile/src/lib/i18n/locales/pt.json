@@ -436,7 +436,9 @@
     "lockDescription": "Quantos feitos e o próximo",
     "controlName": "Registrar hábito",
     "controlDescription": "Registre o hábito escolhido com um toque",
-    "chooseHabit": "Escolher hábito"
+    "chooseHabit": "Escolher hábito",
+    "heatmapName": "Grade de registros",
+    "heatmapDescription": "Seu histórico do hábito escolhido"
   },
   "icloud": {
     "auto": "Backup no iCloud",

@@ -406,7 +406,9 @@
     "lockDescription": "已完成数和下一个习惯",
     "controlName": "记录习惯",
     "controlDescription": "轻点一下记录所选习惯",
-    "chooseHabit": "选择习惯"
+    "chooseHabit": "选择习惯",
+    "heatmapName": "记录方格",
+    "heatmapDescription": "所选习惯的历史记录"
   },
   "icloud": {
     "auto": "备份到 iCloud",

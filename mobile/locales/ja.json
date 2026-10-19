@@ -1,0 +1,16 @@
+{
+  "ios": {
+    "CFBundleDisplayName": "つづくログ",
+    "NSPhotoLibraryUsageDescription": "選んだ写真を、習慣のアイコンに使います。写真はこの端末の中だけに置きます。",
+    "NSCameraUsageDescription": "つづくログはカメラを使いません。アプリに含まれる部品のために必要な表示です。",
+    "NSMicrophoneUsageDescription": "つづくログはマイクを使いません。アプリに含まれる部品のために必要な表示です。",
+    "NSFaceIDUsageDescription": "アプリのロックをオンにしたときに、Face ID でロックを解除します。"
+  },
+  "android": {
+    "app_name": "つづくログ",
+    "widget_ongotoday_label": "きょうの習慣",
+    "widget_ongotoday_description": "タップできょうの習慣を記録できます",
+    "widget_ongoheatmap_label": "記録のマス目",
+    "widget_ongoheatmap_description": "選んだ習慣の、これまでの記録"
+  }
+}

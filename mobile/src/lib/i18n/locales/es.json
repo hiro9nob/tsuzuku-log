@@ -436,7 +436,9 @@
     "lockDescription": "Cuántos llevas y qué sigue",
     "controlName": "Registrar hábito",
     "controlDescription": "Registra el hábito que elijas con un toque",
-    "chooseHabit": "Elige un hábito"
+    "chooseHabit": "Elige un hábito",
+    "heatmapName": "Cuadrícula",
+    "heatmapDescription": "Tu historial del hábito que elijas"
   },
   "icloud": {
     "auto": "Copia de seguridad en iCloud",

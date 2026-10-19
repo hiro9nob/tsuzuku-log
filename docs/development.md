@@ -68,13 +68,37 @@ EXPO_PUBLIC_DEMO_DATA=1 pnpm start
 ## ウィジェット・ロック画面・コントロールセンター（iOS）
 
 - `targets/widget/`（Swift）。`@bacons/apple-targets` で拡張のターゲットを作る。iOS 17 以上（タップで記録するため）、コントロールセンターは iOS 18 以上
-- ホーム画面：小（4つ）・中（4つ、名前つき）・大（7つ。Pro）。並びは並べ替えの順。ロック画面：円（達成数）・長方形（達成数と次の習慣）・1行
+- ホーム画面：小（4つ）・中（4つ、名前つき）・大（7つ。Pro）。長押しの「ウィジェットを編集」で、表示する習慣を選べる（選んだ順に、予定の日でなくても出す）。選ばなければ、きょうやる習慣を並べ替えの順に出す
+- ウィジェットの編集の画面の文言は、`targets/widget/<言語>.lproj/Localizable.strings` で訳す（キーは Swift の英語の文字列）
+- 記録のマス目（小・中、無料）：選んだ習慣の、これまでの記録（列が週、行が曜日、右端がきょう）。長押しの「ウィジェットを編集」で習慣を選ぶ。上の丸で記録でき、マス目をタップすると習慣の詳細を開く（`HeatmapWidget.swift`）。ロック画面：円（達成数）・長方形（達成数と次の習慣）・1行
 - コントロールセンター：選んだ習慣をワンタップで記録する
 - アプリは、習慣の一覧（繰り返しの決まり、始まりと終わりの日）・表示の言葉を App Group の UserDefaults（`widgetSnapshot`）に JSON で置く（`src/lib/widgetSnapshot.ts`）。記録が変わるたび、設定・Pro・言語が変わるたびに書き直し、ウィジェットを再読み込みする
 - ウィジェットは記録（`entries`）を SQLite から直接読み書きし、その日に出すかを繰り返しの決まりと最新の記録から決める（`Schedule.swift`。`stats.ts` の `isScheduledOn` と同じ考え方なので、片方を変えたらもう片方も直す）。上限型は期間の合計を見せる
 - 量を足す記録は、アプリとウィジェットのどちらも1つの SQL で足す（同時に押しても消えない）。消した習慣には記録しない（外部キー）
 - 記録したら、その日の通知（identifier `ongo.<習慣>.<日>.<番号>`）を消す。アプリに戻ると DB を読み直し、通知を予約し直す
 - アイコンは Ionicons を SF Symbols に置き換える（`src/lib/sfSymbols.ts`。選べるアイコンすべてに対応表があることをテストで確かめている）
+
+- ウィジェット・コントロール・Siri で共有する Swift（記録の読み書き、予定の判定、習慣の一覧）は `targets/_shared/` に置く（すべての拡張とアプリ本体に入る）
+
+## Siri とショートカット（iOS）
+
+- `targets/intents/`（App Intents の拡張。iOS 17 以上）。アプリを開かずに動く
+- 「習慣を記録」：習慣を選ぶか名前を言って記録する（「できた」は取り消さない。数値・上限は1回分を足す）。「きょうの進み具合」：きょうの達成数を答える
+- Siri への言い方（設定なしで使える）は `AppShortcutsProvider`。各言語の言い方は `targets/intents/<言語>.lproj/AppShortcuts.strings`、ほかの文言は `Localizable.strings`（キーは Swift の英語の文字列）
+  - 例：「つづくログで水を飲むを記録」「つづくログできょうの進み具合」
+
+## Android のウィジェット
+
+- `react-native-android-widget`。中身は JS（`src/widgets/android/`）で、アプリと同じ DB と計算を使う。アプリを開いていないときにも動くので、DB の作り替え・設定・言語の準備を、ウィジェットの処理の中で行う（`data.ts`）
+- きょうの習慣（丸を押すと記録。大きさに合わせて並べる数を変える）、記録のマス目（SVG の1枚の絵で描く。鉛筆のボタンで習慣を選び直せる。選んだ習慣は AsyncStorage にウィジェットごとに置く）
+- アプリで記録や設定が変わったら、置いてあるウィジェットを描き直す（`widgetSync.ts` → `updateAndroidWidgets`）
+- Pro かどうかは、課金の SDK を動かさず、アプリが最後に確かめた結果（`ongo.lastIsPro`）を使う
+- アイコンは Ionicons のフォント（`assets/fonts/Ionicons.ttf`）。自分の画像のアイコンは、ウィジェットでは基本のアイコンにする
+- 名前と説明は strings.xml（英語は `app.config.ts`、日本語は `locales/ja.json` の android）
+- 気をつけること
+  - ウィジェットのファイルの先頭に `'use no memo';` を書く（React Compiler が書き換えると、この部品の仕組みで動かない）
+  - `react-native-android-widget` は読み込んだ時点で Android の機能を探すので、iOS では読み込まない（`index.ts` と `widgetSync.ts` で Android のときだけ `require`）
+  - アプリの入り口は `index.ts`（Expo Router の前に、ウィジェットの処理を登録する）
 
 ## iCloud バックアップ（iOS）
 
@@ -114,7 +138,6 @@ EXPO_PUBLIC_DEMO_DATA=1 pnpm start
 | もの | 補足 |
 |---|---|
 | 端末どうしの同期 | 将来作る（2026-10-19 に決定）。作り方は下の「端末どうしの同期（将来）」 |
-| Android のウィジェット | iOS だけ作った |
 | 他のアプリの CSV の細かい対応 | いまは「日付の列＋習慣の名前の列」か「日付の列＋習慣ごとの列」の一般的な CSV に対応。DotHabit・Habitify の実際の書き出しで確かめる |
 | ストアと RevenueCat のスクリプト、スクリーンショット | Yaylog からコピーする（[ios-app-playbook.md](./common/ios-app-playbook.md)） |
 | サイト | 利用規約・プライバシーポリシー・サポート |
