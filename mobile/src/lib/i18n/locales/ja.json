@@ -1,0 +1,465 @@
+{
+  "app": {
+    "name": "つづくログ"
+  },
+  "common": {
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "save": "保存",
+    "delete": "削除",
+    "increase": "増やす",
+    "decrease": "減らす"
+  },
+  "startup": {
+    "dbError": "データを開けませんでした",
+    "dbErrorBody": "記録はそのまま残っています。アプリを入れ直さずに、最新のバージョンに更新してからもう一度開いてください。"
+  },
+  "tabs": {
+    "today": "きょう",
+    "review": "振り返り",
+    "me": "マイページ"
+  },
+  "onboarding": {
+    "title": "まず1つ、選んでみましょう",
+    "body": "タップするだけで追加できます。あとから名前や頻度を変えられます。",
+    "addHint": "この習慣を追加します",
+    "custom": "自分でつくる"
+  },
+  "suggestions": {
+    "water": "水を飲む",
+    "waterDetail": "1日 2000 ml",
+    "read": "読書",
+    "readDetail": "毎日",
+    "walk": "散歩",
+    "walkDetail": "毎日",
+    "sleepEarly": "早寝",
+    "sleepEarlyDetail": "毎日",
+    "english": "英語",
+    "englishDetail": "週に3回",
+    "lessAlcohol": "お酒を控える",
+    "lessAlcoholDetail": "週3杯まで"
+  },
+  "units": {
+    "ml": "ml",
+    "drinks": "杯"
+  },
+  "today": {
+    "title": "きょう",
+    "add": "習慣を追加",
+    "summary": "きょうできた習慣",
+    "later": "きょうは予定のない習慣",
+    "resting": "お休み",
+    "recorded": "{{name}}を記録しました",
+    "cleared": "{{name}}の記録を消しました",
+    "undo": "取り消す",
+    "note": "ひとこと",
+    "recordLabel": "{{name}}をできたにする",
+    "undoLabel": "{{name}}の記録を消す",
+    "addLabel": "{{name}}に{{step}}を足す",
+    "openHint": "詳しく見る",
+    "rest": "きょうはお休みにする",
+    "unrest": "お休みをやめる",
+    "reorder": "並べ替え"
+  },
+  "streak": {
+    "day_other": "{{count}}日連続",
+    "week_other": "{{count}}週連続",
+    "month_other": "{{count}}か月連続"
+  },
+  "streakUnit": {
+    "day_other": "日連続",
+    "week_other": "週連続",
+    "month_other": "か月連続"
+  },
+  "limit": {
+    "day": "きょう {{value}} / {{max}}",
+    "week": "今週 {{value}} / {{max}}",
+    "month": "今月 {{value}} / {{max}}"
+  },
+  "limitSummary": {
+    "day": "1日 {{max}} まで",
+    "week": "週 {{max}} まで",
+    "month": "月 {{max}} まで"
+  },
+  "period": {
+    "perWeek": "今週 {{done}} / {{times}}",
+    "perMonth": "今月 {{done}} / {{times}}"
+  },
+  "status": {
+    "done": "できた",
+    "rest": "お休み",
+    "partial": "途中まで",
+    "over": "上限を超えた",
+    "missed": "記録なし",
+    "open": "まだ",
+    "off": "予定なし",
+    "none": "記録なし"
+  },
+  "form": {
+    "newTitle": "習慣をつくる",
+    "editTitle": "習慣を直す",
+    "name": "名前",
+    "namePlaceholder": "例：ストレッチ",
+    "icon": "アイコン",
+    "moreIcons": "ほかのアイコン",
+    "fewerIcons": "基本のアイコンだけにする",
+    "emoji": "絵文字",
+    "image": "自分の画像",
+    "chooseImage": "選ぶ",
+    "imageFailed": "画像を読み込めませんでした。",
+    "color": "色",
+    "kind": "記録のしかた",
+    "target": "目標",
+    "limit": "上限",
+    "step": "1回で足す量",
+    "unit": "単位",
+    "unitPlaceholder": "ml、回、ページ",
+    "frequency": "頻度",
+    "reminders": "通知",
+    "addReminder": "通知を追加",
+    "removeReminder": "この通知を消す",
+    "reminderTime": "通知の時刻 {{time}}",
+    "delete": "この習慣を削除",
+    "deleteTitle": "「{{name}}」を削除しますか？",
+    "deleteBody": "記録とメモも消え、元に戻せません。残しておきたいときは、先に設定から書き出してください。",
+    "period": "期間",
+    "limited": "期間限定",
+    "endDay": "終わる日",
+    "limitedHint": "30日チャレンジのように、終わりの日を決められます。終わった習慣は「きょう」に出なくなり、記録は振り返りに残ります。"
+  },
+  "kinds": {
+    "check": "できた",
+    "checkHint": "1タップで「できた」を記録します。",
+    "count": "数値",
+    "countHint": "量を積み上げて、目標に届いたらできた（水 2000 ml など）。",
+    "limit": "上限",
+    "limitHint": "上限より少なければできた（お酒は週3杯まで など）。"
+  },
+  "limitPeriods": {
+    "day": "1日",
+    "week": "1週間",
+    "month": "1か月"
+  },
+  "schedule": {
+    "daily": "毎日",
+    "weekdays": "曜日",
+    "perWeek": "週に何回",
+    "interval": "何日おき",
+    "perMonth": "月に何回",
+    "weekdayPreset": "平日",
+    "weekendPreset": "週末",
+    "timesPerWeek_other": "週に{{count}}回",
+    "timesPerMonth_other": "月に{{count}}回",
+    "everyNDays_other": "{{count}}日ごと",
+    "separator": "・",
+    "goal": "目標 {{value}}",
+    "restHint": "体調が悪い日や旅行の日は「お休み」にできます。お休みしても連続は途切れません。",
+    "monthlyWeekday": "第何曜日",
+    "afterDone": "やってから",
+    "nthWeek": "第{{n}}",
+    "lastWeek": "最終",
+    "monthlyWeekdayLabel": "毎月 {{weeks}} {{days}}",
+    "afterDoneDays_other": "やってから{{count}}日後",
+    "until": "{{date}}まで"
+  },
+  "colors": {
+    "mono": "テーマの色",
+    "green": "緑",
+    "blue": "青",
+    "amber": "黄土色",
+    "rose": "ばら色",
+    "violet": "すみれ色",
+    "gray": "灰色"
+  },
+  "entry": {
+    "done": "できた",
+    "record": "記録する",
+    "rest": "お休み",
+    "none": "記録しない",
+    "restHint": "お休みの日は、連続を途切れさせません。",
+    "value": "値",
+    "note": "ひとこと",
+    "notePlaceholder": "きょうのこと、気づいたこと"
+  },
+  "detail": {
+    "edit": "習慣を直す",
+    "current": "いまの連続",
+    "longest": "最長の連続",
+    "weekRate": "今週の達成率",
+    "monthRate": "今月の達成率",
+    "history": "これまでの記録",
+    "heatmap": "これまでの記録の一覧",
+    "restLegend": "塗りつぶしはできた日、中空のマスはお休みの日です。",
+    "prevMonth": "前の月",
+    "nextMonth": "次の月",
+    "hasNote": "メモあり",
+    "editHint": "日付をタップすると、記録を直したりメモを書いたりできます。",
+    "notes": "メモ",
+    "addNote": "書く",
+    "noNotes": "記録したあとの「ひとこと」が、ここに並びます。",
+    "allNotes_other": "メモをすべて見る（{{count}}件）"
+  },
+  "review": {
+    "title": "振り返り",
+    "empty": "習慣を記録すると、ここに達成率が出ます。",
+    "week": "今週の達成率",
+    "month": "今月の達成率",
+    "byHabit": "習慣ごと（今月）",
+    "lastMonth": "先月 {{rate}}"
+  },
+  "stats": {
+    "detailed": "詳細統計",
+    "detailedHint": "1年の推移、曜日や時間帯ごとの得意と苦手、去年との比較を見られます。",
+    "year": "1年の推移",
+    "weekdays": "曜日ごとの達成率",
+    "weekdayCounts": "できた日の曜日",
+    "hours": "記録した時間帯",
+    "thisMonth": "今月",
+    "sameMonthLastYear": "去年の同じ月",
+    "hourBuckets": {
+      "h5": "朝",
+      "h9": "午前",
+      "h12": "午後",
+      "h17": "夕方",
+      "h21": "夜",
+      "h0": "深夜"
+    }
+  },
+  "notes": {
+    "title": "メモ",
+    "search": "メモを検索",
+    "empty": "まだメモはありません。",
+    "noResults": "見つかりませんでした。"
+  },
+  "share": {
+    "title": "シェア",
+    "button": "シェア",
+    "celebrateTitle": "{{streak}}！",
+    "celebrateBody": "ここまで続けてきました。",
+    "milestoneHeadline": "節目に届きました",
+    "story": "縦長",
+    "square": "正方形",
+    "hideName": "名前を「ひみつの習慣」にする",
+    "secretName": "ひみつの習慣",
+    "designs": "デザイン",
+    "layoutClassic": "ふつう",
+    "layoutBold": "大きな数字",
+    "mono": "デフォルト",
+    "failed": "画像を作れませんでした。もう一度お試しください。"
+  },
+  "me": {
+    "title": "マイページ",
+    "plan": "いまのプラン",
+    "free": "無料",
+    "freeBody": "習慣はいくつでも、記録はずっと無料です。Pro でできることを見る",
+    "pro": "Pro",
+    "proBody": "ご支援ありがとうございます。",
+    "records": "これまでの記録",
+    "activeDays": "続けた日数",
+    "longest": "最長の連続",
+    "habits": "習慣",
+    "storage": "記録はこの端末に保存しています",
+    "lastExport": "最後の書き出し：{{date}}",
+    "noExport": "機種変更に備えて、ときどき書き出しておくと安心です。",
+    "backupSettings": "書き出しと取り込み",
+    "icloudOn": "iCloud にバックアップしています"
+  },
+  "settings": {
+    "title": "設定",
+    "records": "記録",
+    "dayStart": "1日の区切り",
+    "dayStartFooter": "夜ふかしや夜勤の日は、区切りを遅くすると、深夜の記録がその日に入ります。",
+    "weekStart": "週の始まり",
+    "weekStarts": {
+      "system": "端末に合わせる",
+      "sun": "日曜",
+      "mon": "月曜"
+    },
+    "celebrations": "節目のお祝い",
+    "celebrationsDetail": "7日・30日・100日などの節目に、カードを1回だけ出します",
+    "notifications": "通知",
+    "summary": "1日のまとめ通知",
+    "summaryDetail": "その日の習慣の数を、1日1回お知らせします",
+    "summaryTime": "まとめ通知の時刻",
+    "display": "表示",
+    "language": "言語",
+    "languageSystem": "端末の設定に従う",
+    "data": "データ",
+    "exportJson": "書き出す（JSON）",
+    "exportCsv": "書き出す（CSV）",
+    "import": "取り込む（このアプリの JSON、他のアプリの CSV）",
+    "storageNote": "記録はこの端末の中だけに保存し、外部には送りません。書き出しにはメモも含まれます。",
+    "pro": "Pro",
+    "proActive": "利用中",
+    "about": "このアプリについて",
+    "support": "サポート",
+    "version": "バージョン"
+  },
+  "appearance": {
+    "title": "外観",
+    "modes": {
+      "system": "端末の設定に従う",
+      "light": "ライト",
+      "dark": "ダーク"
+    },
+    "color": "カラーテーマ"
+  },
+  "themes": {
+    "gray": "デフォルト"
+  },
+  "export": {
+    "failed": "書き出せませんでした。"
+  },
+  "import": {
+    "invalid": "このファイルは読み込めませんでした",
+    "formatHint": "このアプリの JSON か、日付の列がある CSV に対応しています。",
+    "confirmTitle": "取り込みますか？",
+    "habits_other": "新しい習慣：{{count}}件",
+    "records_other": "記録：{{count}}件",
+    "notes_other": "メモ：{{count}}件",
+    "mergeNote": "今の記録に追加します。同じ日の記録は、取り込むファイルの内容で上書きします。",
+    "run": "取り込む",
+    "done": "取り込みました",
+    "failed": "取り込めませんでした。記録は変わっていません。"
+  },
+  "notifications": {
+    "channel": "習慣の通知",
+    "habitBody": "きょうの分は、まだ記録していません",
+    "logBody": "きょうの分を記録しておきましょう",
+    "summaryTitle": "きょうの習慣",
+    "summaryBody_other": "きょうの習慣は{{count}}つです",
+    "card": "通知を許可すると、決めた時刻にお知らせが届きます",
+    "deniedCard": "通知がオフになっています。端末の設定でオンにできます",
+    "allow": "許可する",
+    "openSettings": "設定を開く",
+    "actionDone": "できた",
+    "actionAdd": "1回分を記録"
+  },
+  "reorder": {
+    "up": "{{name}}を上へ",
+    "down": "{{name}}を下へ"
+  },
+  "reviewPrompt": {
+    "title": "つづくログを応援しませんか？",
+    "body": "{{store}} の評価が、開発の大きな励みになります。",
+    "later": "あとで",
+    "support": "応援する"
+  },
+  "pro": {
+    "title": "Pro",
+    "badge": "Pro の機能",
+    "lead": "習慣の数と記録は、ずっと無料です。Pro は、使い込むほどほしくなる「自分好みに整える」機能です。",
+    "active": "Pro を利用中です。ご支援ありがとうございます。",
+    "freeForever": "記録、取り消し、過去の日の修正、お休み、書き出しは、Pro でなくてもずっと使えます。広告は出しません。",
+    "features": {
+      "themes": "カラーテーマ",
+      "colors": "習慣の色",
+      "icons": "カスタムアイコン",
+      "repeat": "カスタム繰り返し",
+      "reminders": "複数の通知",
+      "stats": "詳細統計",
+      "search": "メモの検索",
+      "cards": "カードのデザイン"
+    },
+    "featureBodies": {
+      "themes": "10色のテーマで、アプリ全体の色を変えられます",
+      "colors": "6色から習慣ごとに色を選べます",
+      "icons": "すべてのアイコン、絵文字、自分の画像",
+      "repeat": "何日おき、月に何回、第何曜日、やってからN日後、期間限定",
+      "reminders": "1つの習慣に何回でも、曜日ごとに違う時刻",
+      "stats": "1年の推移、曜日や時間帯ごとの得意と苦手、去年との比較",
+      "search": "これまでのメモを言葉で探せます",
+      "cards": "シェアカードの色とレイアウト"
+    },
+    "monthly": "月額",
+    "annual": "年額",
+    "lifetime": "買い切り",
+    "recommended": "おすすめ",
+    "lifetimeSub": "1回の購入で、ずっと使えます",
+    "subscriptionNote": "月額と年額は自動更新です。期間が終わる24時間前までに解約しない限り、同じ価格で更新されます。解約は {{store}} のアカウント設定の「サブスクリプション」から、いつでもできます。",
+    "regionalNote": "価格は国や地域によって異なり、表示の価格はお住まいの地域のものです。",
+    "unavailable": "いまは購入できません。通信の状態を確かめて、あとでもう一度お試しください。",
+    "stayFree": "無料のまま続ける",
+    "restore": "購入を復元",
+    "manage": "サブスクリプションを管理",
+    "storeNote": "購入はストアのアカウントにひもづきます。機種変更のときは「購入を復元」を押してください。",
+    "terms": "利用規約",
+    "privacy": "プライバシーポリシー",
+    "thanks": "ありがとうございます。Pro が使えるようになりました。",
+    "pending": "購入の承認を待っています。承認されると Pro が使えるようになります。",
+    "purchaseFailed": "購入できませんでした。料金は請求されていません。",
+    "restored": "購入を復元しました。",
+    "restoreNothing": "復元できる購入は見つかりませんでした。",
+    "restoreFailed": "復元できませんでした。通信の状態を確かめてください。",
+    "gateTitle": "{{feature}}は Pro の機能です",
+    "gateBody": "記録はこのまま無料で続けられます。",
+    "gateSee": "Pro を見る"
+  },
+  "widget": {
+    "today": "きょう",
+    "empty": "アプリで習慣を追加すると、ここで記録できます",
+    "allDone": "きょうの分はすべてできました",
+    "proLarge": "大きなウィジェットは Pro で使えます",
+    "name": "きょうの習慣",
+    "description": "タップで記録できます",
+    "lockName": "きょうの達成数",
+    "lockDescription": "きょうできた数と次の習慣",
+    "controlName": "習慣を記録",
+    "controlDescription": "選んだ習慣をワンタップで記録します",
+    "chooseHabit": "習慣を選ぶ"
+  },
+  "icloud": {
+    "auto": "iCloud にバックアップ",
+    "last": "最後のバックアップ：{{date}}",
+    "never": "まだバックアップしていません",
+    "now": "今すぐバックアップ",
+    "restoreTitle": "iCloud から戻す",
+    "footer": "アプリを閉じたとき、記録が変わっていれば iCloud Drive の「Ongo」フォルダに保存します（1日1つ）。機種変更したら「iCloud から戻す」で戻せます。",
+    "unavailable": "iCloud を使えません。端末の設定で iCloud にサインインし、iCloud Drive をオンにしてください。",
+    "done": "iCloud にバックアップしました",
+    "failed": "バックアップできませんでした。",
+    "none": "iCloud にバックアップはまだありません。",
+    "restoreFooter": "選んだバックアップの記録を、今の記録に足します。",
+    "confirmTitle": "このバックアップから戻しますか？",
+    "restore": "戻す",
+    "restored": "戻しました",
+    "readFailed": "バックアップを読み込めませんでした。通信の状態を確かめてください。",
+    "emptySkipped": "記録がまだないので、バックアップしませんでした。"
+  },
+  "archive": {
+    "action": "アーカイブする",
+    "hint": "きょう・通知・ウィジェットから外します。記録は残り、いつでも戻せます。",
+    "banner": "{{date}}からアーカイブしています",
+    "restore": "戻す",
+    "title": "アーカイブした習慣",
+    "empty": "アーカイブした習慣はありません。",
+    "since": "{{date}}から",
+    "footer": "戻すと、アーカイブしていたあいだの日はお休みになり、連続は途切れません。"
+  },
+  "vacation": {
+    "title": "まとめてお休み",
+    "lead": "旅行や体調がすぐれないときに、期間を選んで、すべての習慣をお休みにできます。できた記録はそのままです。",
+    "from": "始まり",
+    "to": "終わり",
+    "apply": "お休みにする",
+    "done": "{{range}}をお休みにしました",
+    "nothing": "お休みにする日はありませんでした。",
+    "clear": "この期間のお休みを取り消す",
+    "clearTitle": "{{range}}のお休みを取り消しますか？",
+    "clearBody": "できた記録はそのままです。",
+    "cleared": "お休みを取り消しました",
+    "nothingToClear": "取り消すお休みはありませんでした。"
+  },
+  "lock": {
+    "section": "ロック",
+    "setting": "アプリをロック",
+    "settingDetail": "開くときに Face ID・パスコードを求めます",
+    "footer": "ウィジェットとロック画面の表示はロックされません。通知のボタンで記録するときは、端末のロックを解いてからになります。",
+    "prompt": "ロックを解除",
+    "promptOn": "ロックをオンにします",
+    "promptOff": "ロックをオフにします",
+    "title": "ロックしています",
+    "unlock": "ロックを解除",
+    "unavailable": "この端末では使えません。端末の設定で Face ID かパスコードを設定してください。"
+  }
+}
