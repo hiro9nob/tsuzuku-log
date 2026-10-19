@@ -174,7 +174,7 @@
   },
   "colors": {
     "mono": "Themenfarbe",
-    "green": "Grün",
+    "teal": "Blaugrün",
     "blue": "Blau",
     "amber": "Bernstein",
     "rose": "Rosé",
@@ -277,7 +277,7 @@
   },
   "settings": {
     "title": "Einstellungen",
-    "records": "Eintragen",
+    "recordSettings": "Erfassung",
     "dayStart": "Tag beginnt um",
     "dayStartFooter": "Wenn du spät ins Bett gehst oder nachts arbeitest, zählen Einträge nach Mitternacht mit späterem Tagesbeginn zum selben Tag.",
     "weekStart": "Woche beginnt am",

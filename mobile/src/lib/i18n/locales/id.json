@@ -164,7 +164,7 @@
   },
   "colors": {
     "mono": "Warna tema",
-    "green": "Hijau",
+    "teal": "Hijau kebiruan",
     "blue": "Biru",
     "amber": "Kuning tua",
     "rose": "Merah muda",
@@ -266,7 +266,7 @@
   },
   "settings": {
     "title": "Pengaturan",
-    "records": "Pencatatan",
+    "recordSettings": "Pengaturan pencatatan",
     "dayStart": "Hari dimulai pukul",
     "dayStartFooter": "Jika kamu begadang atau kerja malam, mulai hari yang lebih lambat membuat catatan lewat tengah malam masuk ke hari yang sama.",
     "weekStart": "Minggu dimulai hari",

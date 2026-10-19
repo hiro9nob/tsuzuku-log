@@ -184,7 +184,7 @@
   },
   "colors": {
     "mono": "Color del tema",
-    "green": "Verde",
+    "teal": "Verde azulado",
     "blue": "Azul",
     "amber": "Ámbar",
     "rose": "Rosa",
@@ -288,7 +288,7 @@
   },
   "settings": {
     "title": "Ajustes",
-    "records": "Registro",
+    "recordSettings": "Ajustes de registro",
     "dayStart": "El día empieza a las",
     "dayStartFooter": "Si te acuestas tarde o trabajas de noche, un inicio más tardío deja los registros de después de medianoche en el mismo día.",
     "weekStart": "La semana empieza el",

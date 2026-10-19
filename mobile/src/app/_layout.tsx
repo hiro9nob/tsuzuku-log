@@ -163,6 +163,7 @@ export default function RootLayout() {
             <Stack.Screen name="settings/icloud" />
             <Stack.Screen name="settings/archived" />
             <Stack.Screen name="settings/vacation" />
+            <Stack.Screen name="settings/records" />
           </Stack>
         )}
         <LockScreen />

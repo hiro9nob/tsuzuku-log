@@ -82,14 +82,15 @@ export type EntryMap = ReadonlyMap<Day, Entry>;
 
 // 習慣の色。無料は「テーマの色」（mono：画面ではテーマのアクセントの色。無料ならアイコンと同じ緑）だけで、6色は Pro。
 // ライト用とダーク用の2組（mono の値は、テーマを使えないところ（ウィジェットの見本など）で使う）
-export type HabitColorId = 'mono' | 'green' | 'blue' | 'amber' | 'rose' | 'violet' | 'gray';
+// 6色の1つ目は青緑（teal）。デフォルトのテーマの緑（mono）と並ばないように、緑から替えた（2026-10-19）
+export type HabitColorId = 'mono' | 'teal' | 'blue' | 'amber' | 'rose' | 'violet' | 'gray';
 
 /** 無料の色。Pro でなくなったときも、この色で表示する（選んだ色は残す） */
 export const FREE_HABIT_COLOR: HabitColorId = 'mono';
 
 export const HABIT_COLORS: readonly { id: HabitColorId; light: string; dark: string }[] = [
   { id: 'mono', light: '#44734F', dark: '#8DBF9C' },
-  { id: 'green', light: '#44734F', dark: '#8DBF9C' },
+  { id: 'teal', light: '#2F7A78', dark: '#86C7C2' },
   { id: 'blue', light: '#3E6E9E', dark: '#8DB4DB' },
   { id: 'amber', light: '#8C6110', dark: '#E2B85C' },
   { id: 'rose', light: '#A94F6A', dark: '#E6A1B5' },
@@ -97,8 +98,11 @@ export const HABIT_COLORS: readonly { id: HabitColorId; light: string; dark: str
   { id: 'gray', light: '#5C5F66', dark: '#B4B7BD' },
 ];
 
-export function isHabitColorId(value: unknown): value is HabitColorId {
-  return typeof value === 'string' && HABIT_COLORS.some((c) => c.id === value);
+/** 保存した色を読む。前の緑（green）は青緑にし、知らない値は無料の色にする */
+export function toHabitColorId(value: unknown): HabitColorId {
+  if (value === 'green') return 'teal';
+  const found = HABIT_COLORS.find((c) => c.id === value);
+  return found ? found.id : FREE_HABIT_COLOR;
 }
 
 /** 実際に表示する色 */

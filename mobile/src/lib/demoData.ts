@@ -82,7 +82,7 @@ function specs(): Spec[] {
     {
       name: t('suggestions.walk'),
       icon: 'walk',
-      color: 'green',
+      color: 'teal',
       kind: 'check',
       target: 1,
       step: 1,

@@ -1,9 +1,8 @@
 import Constants from 'expo-constants';
 import { Stack, useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Alert, Linking, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Linking, ScrollView, StyleSheet } from 'react-native';
 
-import { Chip } from '@/components/Chip';
 import { NotificationCard } from '@/components/NotificationCard';
 import { SettingsCustomRow, SettingsRow, SettingsSection, SettingsSwitchRow } from '@/components/SettingsRow';
 import { TimeField } from '@/components/TimeField';
@@ -11,13 +10,11 @@ import { authenticate, lockAvailable } from '@/lib/appLock';
 import { exportCsv, exportJson, pickImport } from '@/lib/backup';
 import { currentLocale } from '@/lib/i18n';
 import { backupToICloud, iCloudAvailable, iCloudSupported } from '@/lib/icloud';
-import { DAY_START_HOURS } from '@/lib/day';
-import { formatTimeOfDay } from '@/lib/format';
 import { LANGUAGES } from '@/lib/i18n/languages';
 import { legalUrl } from '@/lib/links';
 import { scheduleReschedule } from '@/lib/notifications';
 import { useIsPro } from '@/lib/pro';
-import { useSettings, type WeekStartPreference } from '@/lib/settings';
+import { useSettings } from '@/lib/settings';
 import { nowIso } from '@/lib/time';
 import { spacing } from '@/theme';
 
@@ -107,29 +104,8 @@ export default function SettingsScreen() {
     <>
       <Stack.Screen options={{ title: t('settings.title') }} />
       <ScrollView contentContainerStyle={styles.content}>
-        <SettingsSection title={t('settings.records')} footer={t('settings.dayStartFooter')}>
-          <SettingsCustomRow first label={t('settings.dayStart')}>
-            <View style={styles.chips}>
-              {DAY_START_HOURS.map((h) => (
-                <Chip key={h} grow compact label={formatTimeOfDay(`${String(h).padStart(2, '0')}:00`)} selected={s.dayStartHour === h} onPress={() => s.set('dayStartHour', h)} />
-              ))}
-            </View>
-          </SettingsCustomRow>
-          <SettingsCustomRow label={t('settings.weekStart')}>
-            <View style={styles.chips}>
-              {(['system', 'sun', 'mon'] as WeekStartPreference[]).map((w) => (
-                <Chip key={w} grow label={t(`settings.weekStarts.${w}`)} selected={s.weekStart === w} onPress={() => s.set('weekStart', w)} />
-              ))}
-            </View>
-          </SettingsCustomRow>
-          <SettingsRow label={t('vacation.title')} onPress={() => router.push('/settings/vacation')} />
-          <SettingsRow label={t('archive.title')} onPress={() => router.push('/settings/archived')} />
-          <SettingsSwitchRow
-            label={t('settings.celebrations')}
-            detail={t('settings.celebrationsDetail')}
-            value={s.celebrations}
-            onValueChange={(v) => s.set('celebrations', v)}
-          />
+        <SettingsSection>
+          <SettingsRow first label={t('settings.recordSettings')} onPress={() => router.push('/settings/records')} />
         </SettingsSection>
 
         <SettingsSection title={t('settings.notifications')}>
@@ -199,5 +175,4 @@ export default function SettingsScreen() {
 
 const styles = StyleSheet.create({
   content: { padding: spacing.m, gap: spacing.l, paddingBottom: spacing.xl * 2 },
-  chips: { flexDirection: 'row', gap: spacing.xs },
 });

@@ -34,7 +34,7 @@ EXPO_PUBLIC_DEMO_DATA=1 pnpm start
 | iCloud コンテナ | `iCloud.<Bundle ID>` | iCloud バックアップ |
 | サイトのドメイン | `https://ongo.no9.app` | 2026-10-19 に決定。利用規約・プライバシーポリシー・サポート（`src/lib/links.ts`）。サイトはまだない |
 | Apple のチーム ID | `CZ84NTJZJT` | `ios.appleTeamId`。アプリ本体・ウィジェット・Siri の拡張の署名に使う |
-| RevenueCat の権利 | `pro` | 公開用 SDK キーは `app.config.ts` に入れる（今は `null` で、購入できない表示になる） |
+| RevenueCat の権利 | `pro` | 公開用 SDK キーは `app.config.ts` に入れる（今は `null` で、購入できない表示になる）。開発版は Test Store のキーで、実機で購入を試せる（[revenuecat-setup.md](./revenuecat-setup.md)） |
 
 ## まだ決めていないこと
 
@@ -139,10 +139,21 @@ EXPO_PUBLIC_DEMO_DATA=1 pnpm start
 |---|---|
 | 端末どうしの同期 | 将来作る（2026-10-19 に決定）。Cloudflare の Workers と D1、ログインなしのアカウントと引き継ぎコードで作る。作り方は下の「端末どうしの同期（将来）」 |
 | 他のアプリの CSV の細かい対応 | いまは「日付の列＋習慣の名前の列」か「日付の列＋習慣ごとの列」の一般的な CSV に対応。DotHabit・Habitify の実際の書き出しで確かめる |
-| ストアと RevenueCat のスクリプト、スクリーンショット | Yaylog からコピーする（[ios-app-playbook.md](./common/ios-app-playbook.md)） |
+| App Store Connect のスクリプト、スクリーンショット | Teraloo からコピーする（[ios-app-playbook.md](./common/ios-app-playbook.md)）。RevenueCat の `store:rc` と、読むだけの `store:check` はある（下の「ストアと RevenueCat のスクリプト」） |
 | サイト | 利用規約・プライバシーポリシー・サポート |
 | 節目のお祝いでの名前の隠し | 仕様どおり「シェア」と「閉じる」だけ。名前を隠すには、習慣の詳細のシェアから作る |
 | 写真つきのメモ、気分の記録、Apple Watch など | コンセプトで「未定」「第2弾以降」 |
+
+## ストアと RevenueCat のスクリプト
+
+`mobile/scripts/store/`（Teraloo から）。設定の中身は `config.mjs` にまとめ、変えたら対応するスクリプトを流し直す。キーは `mobile/.env.local`（commit しない。書く項目は [revenuecat-setup.md](./revenuecat-setup.md)）。
+
+| コマンド | すること |
+|---|---|
+| `pnpm store:check` | App Store Connect と RevenueCat の今の設定を出す（読むだけ）。片方のキーがなくても、もう片方は出す |
+| `pnpm store:rc` | RevenueCat の iOS アプリ、商品（App Store と Test Store）、権利 `pro`、Offering `default` とパッケージ。公開用の SDK キーと Test Store のキーを出す |
+
+扱わないもの：プロジェクトとシークレットキーの作成、App Store サーバー通知（画面で。[revenuecat-setup.md](./revenuecat-setup.md)）。App Store Connect の課金アイテムなどは、アプリの枠を作るときにスクリプトを足す。
 
 ## 端末どうしの同期（将来）
 

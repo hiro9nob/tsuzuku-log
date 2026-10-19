@@ -6,7 +6,7 @@ import { entries, habits, notes, type HabitRow } from '@/db/schema';
 
 import { addDays, isValidDay, type Day } from './day';
 import {
-  isHabitColorId,
+  toHabitColorId,
   parseNumberList,
   parseReminders,
   parseSchedule,
@@ -31,7 +31,7 @@ export function rowToHabit(r: HabitRow): Habit {
     id: r.id,
     name: r.name,
     icon: r.icon,
-    color: isHabitColorId(r.color) ? r.color : 'mono',
+    color: toHabitColorId(r.color),
     kind: toKind(r.kind),
     target: r.target,
     step: r.step,

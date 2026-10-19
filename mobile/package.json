@@ -83,6 +83,8 @@
     "test": "jest",
     "check": "pnpm typecheck && pnpm lint && pnpm test",
     "doctor": "pnpm dlx expo-doctor",
+    "store:check": "node --env-file=.env.local scripts/store/check.mjs",
+    "store:rc": "node --env-file=.env.local scripts/store/rc-setup.mjs",
     "build:dev:ios": "pnpm dlx eas-cli@latest build --profile development --platform ios",
     "build:dev:android": "pnpm dlx eas-cli@latest build --profile development --platform android",
     "build:android:production": "pnpm dlx eas-cli@latest build --platform android --profile production",

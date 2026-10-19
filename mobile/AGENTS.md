@@ -23,7 +23,7 @@ pnpm expo install --fix     # fix incompatible package versions
 
 Run lint and typecheck before declaring any task done.
 
-Store and RevenueCat setup scripts are not added yet (see `../docs/development.md`).
+Store and RevenueCat setup scripts live in `scripts/store/` (`pnpm store:check`, `pnpm store:rc`). App Store Connect scripts are not added yet (see `../docs/development.md`).
 
 ## Navigation & Routing
 

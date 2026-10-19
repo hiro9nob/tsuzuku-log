@@ -7,7 +7,8 @@ type Variant = 'dev' | 'production';
 const variant: Variant = (process.env.APP_VARIANT as Variant | undefined) ?? 'dev';
 
 // Bundle ID は com.horizon.ongo（2026-10-19 に決定。docs/development.md「決めたこと」）
-// RevenueCat の公開用 SDK キーは、RevenueCat のアプリを作ったら入れる。null のあいだは購入できない
+// RevenueCat の公開用 SDK キー（commit してよい。docs/revenuecat-setup.md）。null のあいだは購入できない
+// 開発版は RevenueCat の Test Store（test_…。本物の課金なしで、実機でも購入を試せる）。本番のビルドには入れない
 // アプリの名前：英語（ほかの言語も）は Ongo、日本語は つづくログ（locales/ja.json。docs/tsuzuku-log-concept.md「アプリ名」）
 const variants = {
   dev: {
@@ -22,7 +23,11 @@ const variants = {
     bundleId: 'com.horizon.ongo',
     revenueCatApiKey: { ios: null, android: null },
   },
-} as const;
+} as const satisfies Record<Variant, { name: string; jaLocale: string; bundleId: string; revenueCatApiKey: { ios: string | null; android: string | null } }>;
+
+for (const key of Object.values(variants.production.revenueCatApiKey) as (string | null)[]) {
+  if (key?.startsWith('test_')) throw new Error('production の revenueCatApiKey に Test Store のキー（test_）が入っています');
+}
 
 const v = variants[variant];
 

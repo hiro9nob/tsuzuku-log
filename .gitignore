@@ -9,8 +9,9 @@ web-build/
 expo-env.d.ts
 
 # generated native folders (Continuous Native Generation)
-ios/
-android/
+# 先頭に / を付けて mobile/ の直下だけにする（付けないと mobile/src/widgets/android/ などのコードも外れる）
+/mobile/ios/
+/mobile/android/
 
 # Native
 .kotlin/

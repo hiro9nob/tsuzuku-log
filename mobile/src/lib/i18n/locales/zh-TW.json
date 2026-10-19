@@ -164,7 +164,7 @@
   },
   "colors": {
     "mono": "主題色",
-    "green": "綠色",
+    "teal": "青綠色",
     "blue": "藍色",
     "amber": "琥珀色",
     "rose": "玫瑰色",
@@ -266,7 +266,7 @@
   },
   "settings": {
     "title": "設定",
-    "records": "記錄",
+    "recordSettings": "記錄設定",
     "dayStart": "一天的開始時間",
     "dayStartFooter": "熬夜或上夜班時，把開始時間調晚，午夜後的紀錄就會算在同一天。",
     "weekStart": "每週開始於",

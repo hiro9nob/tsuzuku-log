@@ -174,7 +174,7 @@
   },
   "colors": {
     "mono": "Theme color",
-    "green": "Green",
+    "teal": "Teal",
     "blue": "Blue",
     "amber": "Amber",
     "rose": "Rose",
@@ -277,7 +277,7 @@
   },
   "settings": {
     "title": "Settings",
-    "records": "Logging",
+    "recordSettings": "Logging settings",
     "dayStart": "Day starts at",
     "dayStartFooter": "If you stay up late or work nights, a later start puts after-midnight logs on the same day.",
     "weekStart": "Week starts on",

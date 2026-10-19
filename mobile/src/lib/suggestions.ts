@@ -14,7 +14,7 @@ export const SUGGESTIONS: readonly { id: SuggestionId; input: Omit<HabitInput, '
   },
   {
     id: 'walk',
-    input: { icon: 'walk', color: 'green', kind: 'check', target: 1, step: 1, limitPeriod: 'day', schedule: { type: 'daily' }, reminders: [] },
+    input: { icon: 'walk', color: 'teal', kind: 'check', target: 1, step: 1, limitPeriod: 'day', schedule: { type: 'daily' }, reminders: [] },
   },
   {
     id: 'sleepEarly',

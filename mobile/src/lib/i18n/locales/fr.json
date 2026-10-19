@@ -184,7 +184,7 @@
   },
   "colors": {
     "mono": "Couleur du thème",
-    "green": "Vert",
+    "teal": "Bleu-vert",
     "blue": "Bleu",
     "amber": "Ambre",
     "rose": "Rose",
@@ -288,7 +288,7 @@
   },
   "settings": {
     "title": "Réglages",
-    "records": "Suivi",
+    "recordSettings": "Réglages de suivi",
     "dayStart": "Début de journée",
     "dayStartFooter": "Si vous vous couchez tard ou travaillez de nuit, un début plus tardif compte vos suivis d’après minuit le même jour.",
     "weekStart": "Début de semaine",

@@ -164,7 +164,7 @@
   },
   "colors": {
     "mono": "테마 색",
-    "green": "초록",
+    "teal": "청록",
     "blue": "파랑",
     "amber": "호박색",
     "rose": "장미색",
@@ -266,7 +266,7 @@
   },
   "settings": {
     "title": "설정",
-    "records": "기록",
+    "recordSettings": "기록 설정",
     "dayStart": "하루 시작 시각",
     "dayStartFooter": "늦게 자거나 야간 근무를 할 때 시작 시각을 늦추면, 자정 이후의 기록도 같은 날로 들어가요.",
     "weekStart": "주 시작 요일",

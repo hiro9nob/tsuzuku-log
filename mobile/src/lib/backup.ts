@@ -9,7 +9,7 @@ import { entries, habits, notes, type EntryRow, type HabitRow, type NoteRow } fr
 
 import { readImportCsv, toCsv, type ImportedRecord } from './csv';
 import { isValidDay, type Day } from './day';
-import { isHabitColorId, parseNumberList } from './habit';
+import { parseNumberList, toHabitColorId } from './habit';
 import { notifyDataChanged } from './revision';
 import { newId, nowIso } from './time';
 
@@ -122,7 +122,7 @@ export function prepareJson(text: string): PreparedImport {
     apply: () => {
       db.transaction((tx) => {
         for (const h of hs) {
-          const row = { ...h, color: isHabitColorId(h.color) ? h.color : 'mono' };
+          const row = { ...h, color: toHabitColorId(h.color) };
           const current = tx.select().from(habits).where(eq(habits.id, h.id)).get();
           if (current) {
             // お祝い済みの節目は合わせる（同じ節目で二度出さない）。始まりは早いほう

@@ -164,7 +164,7 @@
   },
   "colors": {
     "mono": "テーマの色",
-    "green": "緑",
+    "teal": "青緑",
     "blue": "青",
     "amber": "黄土色",
     "rose": "ばら色",
@@ -266,7 +266,7 @@
   },
   "settings": {
     "title": "設定",
-    "records": "記録",
+    "recordSettings": "記録の設定",
     "dayStart": "1日の区切り",
     "dayStartFooter": "夜ふかしや夜勤の日は、区切りを遅くすると、深夜の記録がその日に入ります。",
     "weekStart": "週の始まり",

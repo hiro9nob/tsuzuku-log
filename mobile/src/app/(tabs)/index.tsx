@@ -120,6 +120,7 @@ export default function TodayScreen() {
             {views.length > 1 ? (
               <HeaderIconButton icon="swap-vertical" label={t('today.reorder')} onPress={() => router.push('/reorder')} />
             ) : null}
+            <HeaderIconButton icon="options-outline" label={t('settings.recordSettings')} onPress={() => router.push('/settings/records')} />
             <HeaderIconButton icon="add" label={t('today.add')} onPress={() => router.push('/habit/new')} />
           </>
         }
