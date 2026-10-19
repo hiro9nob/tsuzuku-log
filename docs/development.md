@@ -33,6 +33,7 @@ EXPO_PUBLIC_DEMO_DATA=1 pnpm start
 | App Group | `group.<Bundle ID>` | アプリとウィジェットで DB と表示の内容を共有する |
 | iCloud コンテナ | `iCloud.<Bundle ID>` | iCloud バックアップ |
 | サイトのドメイン | `https://ongo.no9.app` | 2026-10-19 に決定。利用規約・プライバシーポリシー・サポート（`src/lib/links.ts`）。サイトはまだない |
+| Apple のチーム ID | `CZ84NTJZJT` | `ios.appleTeamId`。アプリ本体・ウィジェット・Siri の拡張の署名に使う |
 | RevenueCat の権利 | `pro` | 公開用 SDK キーは `app.config.ts` に入れる（今は `null` で、購入できない表示になる） |
 
 ## まだ決めていないこと
@@ -41,7 +42,6 @@ EXPO_PUBLIC_DEMO_DATA=1 pnpm start
 |---|---|---|
 | アイコン | 仮（2つの「o」を、塗りつぶしの丸と中空の丸で描いたもの） | 本番のアイコンに差し替える |
 | カラーテーマ10色 | 見本（`docs/design-sample/color-theme.png`）の9色＋Sunset Amber（10色目は仮） | `src/lib/themeColors.ts`。見本の3つの丸（メイン、サブ、背景）からライト用とダーク用の色を作る。淡い色は、文字やボタンに使うときだけ 4.5:1 になるまで濃く（ダークでは明るく）する（テストで確かめている）。無料はデフォルトだけで、アクセントがアイコンの緑 |
-| Apple のチーム ID | なし | `ios.appleTeamId`。ウィジェットの署名に要る（`@bacons/apple-targets` が警告を出す）。実機と本番のビルドの前に入れる |
 
 ## データ
 

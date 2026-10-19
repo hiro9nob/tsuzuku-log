@@ -90,6 +90,8 @@ const config: ExpoConfig = {
   ios: {
     supportsTablet: false,
     bundleIdentifier: v.bundleId,
+    // Apple の開発チーム。ウィジェットと Siri の拡張（@bacons/apple-targets）の署名にも使う
+    appleTeamId: 'CZ84NTJZJT',
     entitlements: {
       'com.apple.security.application-groups': [appGroup],
       'com.apple.developer.icloud-container-identifiers': [iCloudContainer],
