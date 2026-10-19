@@ -1,0 +1,62 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# generated native folders (Continuous Native Generation)
+ios/
+android/
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.keystore
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.pem
+
+# Store / EAS credentials (never commit)
+# App Store Connect API key (.p8) and Google Play service account keys
+credentials.json
+service-account*.json
+*-service-account.json
+serviceAccount*.json
+client_secret*.json
+google-services.json
+GoogleService-Info.plist
+
+# Metro
+.metro-health-check*
+
+# Cloudflare (promotion site)
+.wrangler/
+.dev.vars*
+!.dev.vars.example
+
+# local env files
+.env
+.env*.local
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.log*
+
+# typescript
+*.tsbuildinfo
+
+# macOS
+.DS_Store
+
+# tools
+.serena/
+.claude/settings.local.json
