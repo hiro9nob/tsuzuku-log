@@ -1,0 +1,74 @@
+# ストアのスクリーンショット
+
+App Store と Google Play に上げるスクリーンショットとフィーチャーグラフィックを、Astro で組んで PNG に書き出す。
+
+```sh
+pnpm install
+pnpm export            # astro build のあと、out/ に PNG を書き出す（手元の Chrome を使う）
+pnpm export -- --only=appstore/ja   # 一部だけ
+pnpm dev               # 見た目を直すとき。http://localhost:4321/appstore/ja/1/ など
+```
+
+Node は 24（`.tool-versions`）。Astro 7 は Node 22.12 以上が要る。
+
+## 書き出すもの
+
+| 置き場所 | 大きさ | 使い道 |
+|---|---|---|
+| `out/appstore/<lang>/01〜08.png` | 1320 x 2868 | App Store の iPhone 6.9 インチ。小さい画面の分は App Store Connect が縮小して使う |
+| `out/googleplay/<lang>/01〜08.png` | 1080 x 1920 | Google Play のスマートフォン |
+| `out/googleplay/<lang>/feature-graphic.png` | 1024 x 500 | Google Play のフィーチャーグラフィック |
+
+`out/` は commit しない。
+
+## 名前と見出し（Codex と相談して決めた）
+
+| | 日本語 | 英語 |
+|---|---|---|
+| アプリ名 | つづくログ - 習慣トラッカー | Ongo: Habit Tracker |
+| App Store のサブタイトル | お休みしても途切れない習慣記録 | Streaks that survive rest days |
+| Google Play の短い説明 | 習慣をひとタップで記録。「お休み」で連続を保ちながら、いくつでも自分のペースで。 | Track unlimited habits with a tap. Mark rest days to keep your streak intact. |
+| フィーチャーグラフィック | 休む日も、続ける日々のひとつ。 | Rest is part of the journey. |
+
+スクリーンショットの見出し・補足・浮かせる部品は `src/data/slides.ts`。並びの考え方（競合と比べて選ばれるよう、Codex と相談して作り直した）：
+
+1. **休んでも、途切れない**（深い緑）：きょうの画面。「読書」の行を拡大し、お休みの中空の丸を吹き出しで指す。見出しの下に「習慣はいくつでも・広告なし・ログイン不要」
+2. **習慣はいくつでも。記録は1タップ。**：習慣の行を端末の外に並べる。取り消すの帯も見せる
+3. **積み重ねが、ひと目でわかる**：マス目と連続日数を拡大
+4. **安心して、ずっと続けられる**（深い緑）：乗り換えの不安に答える約束（上限なし、広告なし、iCloud バックアップ、他のアプリから取り込み）と、マイページ・設定の実画面
+5. **アプリを開かずに、ホーム画面で記録**：ウィジェット
+6. **毎日じゃなくても、週3回でいい**：頻度の欄を拡大
+7. **続けた節目を、そっとお祝い**：お祝いのカードを大きく傾け、キャラクターを添える
+8. **振り返って、自分のペースへ**：習慣ごとの達成率を拡大
+
+作りのきまり：
+- 最初の3枚で、違い（休める）・手軽さ（いくつでも、1タップ）・積み重ね（マス目）の3つを見せる
+- 1枚に主役は1つ。実画面から切り出した部品を1.1〜1.5倍に拡大して浮かせる（ない画面は作らない）
+- 背景は深い緑・生成り・淡い緑で強弱をつける
+- 部品の位置は「舞台」の座標（端末の画面と同じ、RAW の 1320 x 2868）で書く。Google Play も同じ座標で、下は切れる
+
+画像に書かないこと：「無料」「¥0」「最安」などの価格の言葉（審査のメタデータの決まり）、「絶対続く」「三日坊主を卒業」などの保証や責める言い方、「放っておいても切れない」（お休みを付けたときだけ切れない）、未実装の機能（Apple Watch、端末どうしの同期）。
+
+## アプリの画面の撮り方
+
+`public/raw/<lang>/` の画像は、iPhone 16 Pro Max（iOS 18.6）のシミュレータで撮った開発版の画面（1320 x 2868）。撮り直すとき：
+
+1. 撮影専用のシミュレータを作り、開発版のアプリを入れる（開発で使っているシミュレータのデータを消さないため）。状態バーは `xcrun simctl status_bar <udid> override --time 9:41 --batteryState charged --batteryLevel 100`
+2. 英語は、端末の言語を変えてから入れ直す（`defaults write -g AppleLanguages -array en`、`AppleLocale en_US`、再起動）
+3. `EXPO_PUBLIC_DEMO_DATA=1 pnpm expo start --dev-client --port <空いているポート>` で見本のデータを入れて起動する
+4. 画面はリンクで開く（開発版だけの引数を使う）
+   - お休み：`ongo://entry?habitId=<読書の ID>&day=2026-10-13&devStatus=rest`
+   - 節目のお祝い：`ongo://share?habitId=<読書の ID>&milestone=30`
+   - 習慣をつくる：`ongo://habit/new?devSchedule=perWeek`（名前を入れ、頻度までスクロール）
+   - 習慣の詳細：`ongo://habit/<読書の ID>`
+5. マイページと設定（データの欄までスクロール）も撮る。言語はアプリの設定の「言語」で切り替えられる
+6. きょう：通知の案内を閉じ、「読書」を記録（レビューのお願いは「あとで」）。続けて「早寝」を記録した直後に、取り消すの帯ごと撮る
+
+見本のメモ（`mobile/src/lib/demoData.ts`）は日本語のまま入るので、英語版では撮影用の端末の DB でメモを英語に書き換えて撮った。
+
+## 気をつけること
+
+- **ウィジェット（5枚目）は HTML で描いている**。撮影用のシミュレータでウィジェットの一覧が空のまま出なかったため。見た目は `mobile/targets/widget/TodayWidget.swift` と `HeatmapWidget.swift` に合わせた（`src/components/HomeScreen.astro`）。ウィジェットの見た目を変えたら、こちらも直す
+- **Google Play は端末の枠を付けず、補足も出さない**。公式の推奨（端末の画像を避ける、文字は画像の2割まで）に合わせた。お休みの条件（「お休み」にすれば切れない）は、2枚目の画面と短い説明で伝える
+- **Google Play も iOS の画面を使っている**。状態バーだけ Android 風に描き直した（ダイナミックアイランドを隠し、パンチホールを描く）が、タブバーやシートは iOS の見た目のまま。Android の実機かエミュレータで撮れたら差し替える
+- 日本語は Hiragino Sans、英語は SF Pro（どちらも Mac の Chrome にある字形）で書き出す。ほかの環境で書き出すと字形が変わる

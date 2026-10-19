@@ -111,7 +111,7 @@ export default function SettingsScreen() {
           <SettingsCustomRow first label={t('settings.dayStart')}>
             <View style={styles.chips}>
               {DAY_START_HOURS.map((h) => (
-                <Chip key={h} grow label={formatTimeOfDay(`${String(h).padStart(2, '0')}:00`)} selected={s.dayStartHour === h} onPress={() => s.set('dayStartHour', h)} />
+                <Chip key={h} grow compact label={formatTimeOfDay(`${String(h).padStart(2, '0')}:00`)} selected={s.dayStartHour === h} onPress={() => s.set('dayStartHour', h)} />
               ))}
             </View>
           </SettingsCustomRow>

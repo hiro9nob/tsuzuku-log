@@ -64,7 +64,8 @@ export function HabitRow({ view, today, weekStart, onTap, onOpen, onLongPress }:
             </Text>
           </View>
           {detail || streakText || state === 'rest' ? (
-            <Text style={[styles.meta, { color: theme.textSecondary }]} numberOfLines={1}>
+            // 上限型は「今週 0 杯 / 3 杯 · 17週連続」のように長く、英語などでは1行に入らないので2行まで
+            <Text style={[styles.meta, { color: theme.textSecondary }]} numberOfLines={2}>
               {[state === 'rest' ? t('today.resting') : null, detail, streakText].filter(Boolean).join(' · ')}
             </Text>
           ) : null}

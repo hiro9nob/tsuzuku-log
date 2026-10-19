@@ -1,0 +1,441 @@
+---
+// 1枚のスクリーンショット：上に見出し、下に「舞台」（端末と、画面から切り出して浮かせた部品）
+import sharp from 'sharp';
+import { join } from 'node:path';
+
+import HomeScreen from './HomeScreen.astro';
+import { BRAND, CANVAS, RAW, type Lang, type Rect, type Slide, type Store } from '../data/slides';
+
+interface Props {
+  store: Store;
+  lang: Lang;
+  slide: Slide;
+  index: number;
+}
+const { store, lang, slide, index } = Astro.props;
+const { w, h } = CANVAS[store];
+const ios = store === 'appstore';
+const text = slide.text[lang];
+
+// 舞台（端末の画面と同じ場所）の大きさ。Google Play は端末の枠を付けず（公式の推奨）、大きくして下を切る
+const screenW = Math.round(w * (ios ? 0.8 : 0.82));
+const scale = screenW / RAW.w;
+const screenH = Math.round(RAW.h * scale);
+const bezel = ios ? Math.round(screenW * 0.03) : 0;
+const phoneW = screenW + bezel * 2;
+// Google Play は文字を画像の2割までにする（公式の推奨）ので、補足は出さない
+const showSub = ios;
+
+const titleSize = Math.round(w * (lang === 'ja' ? 0.084 : 0.078));
+const subSize = Math.round(w * 0.036);
+const pillSize = Math.round(w * 0.029);
+
+// 舞台は見出しのすぐ下に置く
+const headerTop = Math.round(h * 0.042);
+const lines = (s: string) => s.split('\n').length;
+const headerH =
+  (index === 0 ? subSize * 1.25 + subSize * 0.7 : 0) +
+  lines(text.title) * titleSize * (lang === 'ja' ? 1.28 : 1.18) +
+  (showSub ? subSize * 0.75 + lines(text.sub) * subSize * 1.5 : 0) +
+  (slide.pills ? pillSize * 1.1 + pillSize * 2.4 : 0);
+const phoneTop = Math.round(headerTop + headerH + w * 0.06);
+const stageLeft = Math.round((w - phoneW) / 2) + bezel;
+const stageTop = phoneTop + bezel;
+
+// Google Play では iOS の状態バーを隠す：画面の上の色で塗り、Android 風の時刻とパンチホールを描く
+const shot = slide.screen && slide.screen !== 'home' ? slide.screen : null;
+const statusH = Math.round(186 * scale);
+let statusColor = '#f2f2f7';
+if (!ios && shot) {
+  // ビルドのあとは import.meta.url の場所が変わるので、プロジェクトの直下から数える
+  const file = join(process.cwd(), 'public', 'raw', lang, shot);
+  const { data } = await sharp(file).extract({ left: 20, top: 190, width: 1, height: 1 }).raw().toBuffer({ resolveWithObject: true });
+  statusColor = `rgb(${data[0]},${data[1]},${data[2]})`;
+}
+
+const rectOf = (crop: Rect | Record<Lang, Rect>): Rect => (Array.isArray(crop) ? crop : crop[lang]);
+const floats = (slide.floats ?? []).map((f) => {
+  const [x, y, cw, ch] = rectOf(f.crop);
+  const s = f.scale;
+  return [
+    `left:${f.x}px`,
+    `top:${f.y}px`,
+    `width:${Math.round(cw * s)}px`,
+    `height:${Math.round(ch * s)}px`,
+    // 横幅いっぱいのカードはアプリと同じ丸み。お祝いのカードは角が小さい
+    `border-radius:${Math.round((cw < 800 ? 14 : 52) * s)}px`,
+    `background-image:url(/raw/${lang}/${f.src})`,
+    `background-size:${Math.round(RAW.w * s)}px ${Math.round(RAW.h * s)}px`,
+    `background-position:${-Math.round(x * s)}px ${-Math.round(y * s)}px`,
+    f.rotate ? `transform:rotate(${f.rotate}deg)` : '',
+  ].join(';');
+});
+
+const ICONS: Record<string, string> = {
+  infinity: '<path d="M7 8.5C4.5 8.5 3 10.2 3 12s1.5 3.5 4 3.5c3.5 0 6.5-7 10-7 2.5 0 4 1.7 4 3.5s-1.5 3.5-4 3.5c-3.5 0-6.5-7-10-7z"/>',
+  noads: '<circle cx="12" cy="12" r="8.5"/><path d="M6 18L18 6"/>',
+  cloud: '<path d="M7 18.5h10a4 4 0 0 0 .6-7.95A5.5 5.5 0 0 0 7.1 9.6 4.5 4.5 0 0 0 7 18.5z"/><path d="M9.5 13.8l2 2 3.8-4"/>',
+  import: '<path d="M12 3.5v10M8 9.8l4 4 4-4"/><path d="M4.5 14.5v3.5a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-3.5"/>',
+};
+---
+
+<div
+  class:list={['canvas', lang, slide.theme]}
+  style={`width:${w}px;height:${h}px;--pad:${Math.round(w * 0.07)}px;--title:${titleSize}px;--sub:${subSize}px;--pill:${pillSize}px`}
+>
+  <div class="bg"></div>
+  <header style={`top:${headerTop}px`}>
+    {
+      index === 0 && (
+        <div class="brand">
+          <span class="dot on" />
+          <span class="dot" />
+          <span class="name">{BRAND[lang].name}</span>
+          <span class="cat">{BRAND[lang].category}</span>
+        </div>
+      )
+    }
+    <h1 set:html={text.title.replace(/\n/g, '<br>')} />
+    {showSub && <p set:html={text.sub.replace(/\n/g, '<br>')} />}
+    {
+      slide.pills && (
+        <div class="pills">
+          {slide.pills[lang].map((p) => (
+            <span>
+              <svg viewBox="0 0 24 24">
+                <path d="M5 12.5l4.5 4.5L19 7.5" />
+              </svg>
+              {p}
+            </span>
+          ))}
+        </div>
+      )
+    }
+  </header>
+
+  {
+    slide.screen && (
+      <div
+        class:list={['phone', { framed: ios, dim: floats.length > 0 }]}
+        style={`left:${stageLeft - bezel}px;top:${phoneTop}px;width:${phoneW}px;height:${screenH + bezel * 2}px;padding:${bezel}px;border-radius:${ios ? Math.round(phoneW * 0.15) : Math.round(screenW * 0.08)}px`}
+      >
+        <div class="screen" style={`width:${screenW}px;height:${screenH}px;border-radius:${Math.round(screenW * (ios ? 0.13 : 0.08))}px`}>
+          {shot ? (
+            <img src={`/raw/${lang}/${shot}`} width={screenW} height={screenH} alt="" />
+          ) : (
+            <div style={`position:absolute;inset:0;transform:scale(${screenW / 440});transform-origin:0 0`}>
+              <HomeScreen lang={lang} statusBar={ios} />
+            </div>
+          )}
+          {!ios && shot && (
+            <div class="android-status" style={`height:${statusH}px;background:${statusColor};font-size:${Math.round(44 * scale)}px;padding-left:${Math.round(84 * scale)}px`}>
+              <span>9:41</span>
+              <i style={`width:${Math.round(66 * scale)}px;height:${Math.round(66 * scale)}px;top:${Math.round(42 * scale)}px`} />
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  <!-- 舞台：RAW の座標で置き、端末の画面と同じ倍率で縮める -->
+  <div class="stage" style={`left:${stageLeft}px;top:${stageTop}px;width:${RAW.w}px;height:${RAW.h}px;transform:scale(${scale})`}>
+    {
+      slide.promises && (
+        <div class="promises">
+          {slide.promises.map((p) => (
+            <div class="promise">
+              <span class="icon">
+                <svg viewBox="0 0 24 24" set:html={ICONS[p.icon]} />
+              </span>
+              <b set:html={p.text[lang].replace(/\n/g, '<br>')} />
+            </div>
+          ))}
+        </div>
+      )
+    }
+    {slide.arts?.map((a) => <img class="art" src={`/${a.src}`} style={`left:${a.x}px;top:${a.y}px;width:${a.w}px`} alt="" />)}
+    {floats.map((style) => <div class="float" style={style} />)}
+    {
+      slide.note && (
+        <div class="note" style={`left:${slide.note.x}px;top:${slide.note.y}px`}>
+          <span>{slide.note.text[lang]}</span>
+        </div>
+      )
+    }
+  </div>
+</div>
+
+<style>
+  .canvas {
+    position: relative;
+    overflow: hidden;
+    --text: #17241b;
+    --muted: #415346;
+    --accent: #4a7c59;
+    color: var(--text);
+    font-family: -apple-system, 'SF Pro Display', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', sans-serif;
+  }
+  .canvas.ja {
+    font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', -apple-system, sans-serif;
+  }
+  .bg {
+    position: absolute;
+    inset: 0;
+  }
+  .mint .bg {
+    background:
+      radial-gradient(70% 45% at 100% 0%, #d2e7d7 0%, transparent 70%),
+      radial-gradient(80% 50% at 0% 100%, #cfe2d3 0%, transparent 70%),
+      #e9f2eb;
+  }
+  .cream .bg {
+    background:
+      radial-gradient(70% 45% at 0% 0%, #f1e9d6 0%, transparent 70%),
+      radial-gradient(80% 50% at 100% 100%, #e3eddf 0%, transparent 70%),
+      #f8f5ed;
+  }
+  .dark {
+    --text: #ffffff;
+    --muted: rgba(255, 255, 255, 0.82);
+  }
+  .dark .bg {
+    background:
+      radial-gradient(80% 50% at 100% 0%, #4f8a60 0%, transparent 70%),
+      radial-gradient(90% 60% at 0% 100%, #1f3d29 0%, transparent 70%),
+      #2f5a3c;
+  }
+  header {
+    position: absolute;
+    left: var(--pad);
+    right: var(--pad);
+    text-align: center;
+    z-index: 2;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--sub) * 0.3);
+    margin-bottom: calc(var(--sub) * 0.7);
+    font-size: var(--sub);
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .dark .brand {
+    color: #a9d2b4;
+  }
+  .brand .name {
+    margin-left: calc(var(--sub) * 0.2);
+  }
+  .brand .cat {
+    font-weight: 600;
+    opacity: 0.85;
+    margin-left: calc(var(--sub) * 0.4);
+    padding-left: calc(var(--sub) * 0.55);
+    border-left: 2px solid currentColor;
+  }
+  .dot {
+    width: calc(var(--sub) * 0.62);
+    height: calc(var(--sub) * 0.62);
+    border-radius: 50%;
+    border: calc(var(--sub) * 0.13) solid currentColor;
+    box-sizing: border-box;
+  }
+  .dot.on {
+    background: currentColor;
+  }
+  h1 {
+    margin: 0;
+    font-size: var(--title);
+    line-height: 1.18;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+  }
+  .ja h1 {
+    letter-spacing: 0.01em;
+    line-height: 1.28;
+  }
+  p {
+    margin: calc(var(--sub) * 0.75) 0 0;
+    font-size: var(--sub);
+    line-height: 1.5;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .pills {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    gap: calc(var(--pill) * 0.4);
+    margin-top: calc(var(--pill) * 1.1);
+  }
+  .pills span {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--pill) * 0.3);
+    padding: calc(var(--pill) * 0.5) calc(var(--pill) * 0.7);
+    white-space: nowrap;
+    border-radius: 999px;
+    font-size: var(--pill);
+    font-weight: 700;
+    line-height: 1.2;
+    background: rgba(74, 124, 89, 0.12);
+    color: var(--accent);
+  }
+  .dark .pills span {
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+  }
+  .pills svg {
+    width: calc(var(--pill) * 0.95);
+    height: calc(var(--pill) * 0.95);
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 3.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .dark .pills svg {
+    stroke: #a9d2b4;
+  }
+
+  .phone {
+    position: absolute;
+    box-sizing: border-box;
+    box-shadow:
+      0 40px 80px rgba(23, 50, 31, 0.22),
+      0 12px 24px rgba(23, 50, 31, 0.12);
+  }
+  .phone.framed {
+    background: #1b1d1c;
+    box-shadow:
+      0 0 0 2px #3a3d3b inset,
+      0 40px 80px rgba(10, 30, 15, 0.3),
+      0 12px 24px rgba(10, 30, 15, 0.15);
+  }
+  .screen {
+    position: relative;
+    overflow: hidden;
+    background: #f2f2f7;
+  }
+  .screen img {
+    display: block;
+  }
+  .phone.dim .screen::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 35, 25, 0.12);
+  }
+  .android-status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    font-weight: 600;
+    color: #111;
+    font-family: Roboto, -apple-system, sans-serif;
+  }
+  .android-status i {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: #000;
+  }
+
+  .stage {
+    position: absolute;
+    transform-origin: 0 0;
+  }
+  .float {
+    position: absolute;
+    background-repeat: no-repeat;
+    box-shadow:
+      0 36px 70px rgba(15, 40, 22, 0.2),
+      0 10px 22px rgba(15, 40, 22, 0.12);
+  }
+  .dark .float {
+    box-shadow:
+      0 36px 70px rgba(0, 0, 0, 0.35),
+      0 10px 22px rgba(0, 0, 0, 0.2);
+  }
+  .art {
+    position: absolute;
+  }
+  .note {
+    position: absolute;
+    transform: translateX(-50%);
+    padding-top: 30px;
+  }
+  .note::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 50%;
+    margin-left: -24px;
+    border: 24px solid transparent;
+    border-top: 0;
+    border-bottom: 30px solid var(--accent);
+  }
+  .note span {
+    display: block;
+    white-space: nowrap;
+    padding: 22px 40px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 58px;
+    font-weight: 800;
+    box-shadow: 0 14px 30px rgba(15, 40, 22, 0.3);
+  }
+
+  .promises {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .promise {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 34px;
+    padding: 54px 52px;
+    border-radius: 56px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.14);
+  }
+  .promise .icon {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    background: #8dbf9c;
+    display: grid;
+    place-items: center;
+  }
+  .promise svg {
+    width: 76px;
+    height: 76px;
+    fill: none;
+    stroke: #1f3d29;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .promise b {
+    font-size: 74px;
+    line-height: 1.25;
+    font-weight: 800;
+  }
+  .en .promise b {
+    font-size: 72px;
+  }
+</style>
