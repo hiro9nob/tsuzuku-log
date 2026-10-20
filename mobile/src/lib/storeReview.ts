@@ -1,4 +1,4 @@
-// レビューのお願いは1回だけ。最初の習慣を完了した直後に出す（docs/tsuzuku-log-concept.md「UI/UXの原則」11）
+// レビューのお願いは1回だけ。何日か記録したあと、習慣を完了した直後に出す（docs/tsuzuku-log-concept.md「UI/UXの原則」11。日数は record.ts）
 // 節目のお祝いと同じ日には重ねない（12）
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as StoreReview from 'expo-store-review';
@@ -38,12 +38,15 @@ export function noteCelebrationShown(today: Day): void {
   void AsyncStorage.setItem(CELEBRATED_KEY, today).catch(console.error);
 }
 
-/** 習慣を完了したあとに呼ぶ。まだ頼んでいなければ、少し待ってから1回だけ頼む */
-export function askReviewAfterFirstCompletion(today: Day): void {
+/**
+ * 習慣を完了したあとに呼ぶ。まだ頼んでいなければ、少し待ってから1回だけ頼む。
+ * eligible は出す直前にもう一度確かめる条件（待っているあいだに記録を取り消したときなど）
+ */
+export function askReviewAfterCompletion(today: Day, eligible: () => boolean = () => true): void {
   if (busy || celebratedDay === today) return;
   busy = true;
   setTimeout(() => {
-    ask(today)
+    ask(today, eligible)
       .then((shown) => {
         // 出したときは、この起動のあいだは busy のままにする
         if (!shown) busy = false;
@@ -55,16 +58,17 @@ export function askReviewAfterFirstCompletion(today: Day): void {
   }, WAIT_MS);
 }
 
-async function ask(today: Day): Promise<boolean> {
-  if (AppState.currentState !== 'active') return false;
+async function ask(today: Day, eligible: () => boolean): Promise<boolean> {
+  if (AppState.currentState !== 'active' || !eligible()) return false;
   const asked = await AsyncStorage.getItem(ASKED_KEY).catch(() => '1');
   if (asked === '1' || celebratedDay === today) return false;
   if (!(await StoreReview.hasAction().catch(() => false))) return false;
-  // 待っているあいだに節目のお祝いが出たら、同じ日には重ねない
-  if (celebratedDay === today || AppState.currentState !== 'active') return false;
+  // 最後の await のあとに、もう一度確かめる。ここから出すまでは await しない
+  // （待っているあいだに節目のお祝いが出た日、記録を取り消して条件を満たさなくなったときは出さない）
+  if (celebratedDay === today || AppState.currentState !== 'active' || !eligible()) return false;
 
   askedDay = today;
-  await AsyncStorage.multiSet([
+  void AsyncStorage.multiSet([
     [ASKED_KEY, '1'],
     [ASKED_DAY_KEY, today],
   ]).catch(console.error);

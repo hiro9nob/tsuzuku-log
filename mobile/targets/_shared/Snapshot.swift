@@ -43,11 +43,22 @@ struct WidgetSnapshot: Codable {
     let target: Double
     let step: Double
     let unit: String
-    /// Pro でないときの置き換えを済ませた繰り返し（mobile/src/lib/habit.ts の Schedule）
+    /// 繰り返し（mobile/src/lib/habit.ts の Schedule。Pro をやめても、すでに使っている繰り返しはそのまま）
     let schedule: ScheduleRule
     let limitPeriod: String
     let startDay: String
     let endDay: String?
+    /// 目標や頻度を変える前の判定の決まり（古い順。mobile/src/lib/habit.ts の HabitRule）。古い内容にはない
+    let rules: [Rule]?
+  }
+
+  /// 判定の決まり。until の日まで使った
+  struct Rule: Codable {
+    let until: String
+    let kind: String
+    let target: Double
+    let limitPeriod: String
+    let schedule: ScheduleRule
   }
 
   struct ScheduleRule: Codable {
@@ -56,6 +67,8 @@ struct WidgetSnapshot: Codable {
     let times: Int?
     let every: Int?
     let weeks: [Int]?
+    /// 何日おきの数え始める日（古い内容にはない。そのときは始まりの日から数える）
+    let anchor: String?
 
     /// weekdays・monthlyWeekday では曜日の配列、afterDone では日数（数）が入る
     enum AnyDays: Codable {

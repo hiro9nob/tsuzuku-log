@@ -59,7 +59,17 @@
     "openHint": "Lihat detail",
     "rest": "Jadikan hari istirahat",
     "unrest": "Batalkan hari istirahat",
-    "reorder": "Atur urutan"
+    "reorder": "Atur urutan",
+    "menu": "Opsi lain untuk {{name}}",
+    "fixYesterday": "Perbaiki catatan kemarin",
+    "editToday": "Catatan dan keterangan hari ini",
+    "enterAmount": "Masukkan jumlah",
+    "decrease": "Kurangi {{step}}",
+    "milestone": "{{name}}: {{streak}}!",
+    "share": "Bagikan",
+    "rested": "{{name}} dijadikan hari istirahat",
+    "dayLabel": "{{date}}, {{status}}",
+    "dayHint": "Perbaiki catatan untuk hari itu"
   },
   "streak": {
     "day_other": "{{count}} hari beruntun",
@@ -83,7 +93,9 @@
   },
   "period": {
     "perWeek": "Minggu ini {{done}} / {{times}}",
-    "perMonth": "Bulan ini {{done}} / {{times}}"
+    "perMonth": "Bulan ini {{done}} / {{times}}",
+    "perWeekRest": "Minggu ini {{done}} / {{times}} ({{rest}} istirahat)",
+    "perMonthRest": "Bulan ini {{done}} / {{times}} ({{rest}} istirahat)"
   },
   "status": {
     "done": "Selesai",
@@ -125,7 +137,10 @@
     "period": "Durasi",
     "limited": "Periode terbatas",
     "endDay": "Berakhir pada",
-    "limitedHint": "Tetapkan tanggal akhir, seperti tantangan 30 hari. Setelah berakhir, kebiasaan tidak muncul lagi di Hari ini dan catatannya tetap ada di Ringkasan."
+    "limitedHint": "Tetapkan tanggal akhir, seperti tantangan 30 hari. Setelah berakhir, kebiasaan tidak muncul lagi di Hari ini dan catatannya tetap ada di Ringkasan.",
+    "showDetails": "Opsi lainnya",
+    "detailsHint": "Ikon, warna, periode, pengingat",
+    "suggestions": "Pilih dari saran"
   },
   "kinds": {
     "check": "Selesai",

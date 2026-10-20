@@ -5,7 +5,7 @@ import { migrate } from 'drizzle-orm/expo-sqlite/migrator';
 
 import { db } from '@/db/client';
 import { dayOf, type Day, type WeekStart } from '@/lib/day';
-import { effectiveSchedule, isDone, type Entry, type Habit } from '@/lib/habit';
+import { isDone, type Entry, type Habit } from '@/lib/habit';
 import { addToEntry, allEntries, getEntry, getHabit, listHabits, setEntry } from '@/lib/habits';
 import { initI18n } from '@/lib/i18n';
 import { rescheduleNotifications } from '@/lib/notifications';
@@ -51,8 +51,7 @@ export async function loadWidgetData(): Promise<WidgetData> {
   const today = dayOf(new Date(), settings.dayStartHour);
   const weekStart = resolveWeekStart(settings.weekStart);
   const map = allEntries();
-  const habits = listHabits().map((raw) => {
-    const habit = { ...raw, schedule: effectiveSchedule(raw.schedule, isPro), endDay: isPro ? raw.endDay : null };
+  const habits = listHabits().map((habit) => {
     const entries = map.get(habit.id) ?? new Map<Day, Entry>();
     return { habit, entries, state: todayStateOf(habit, entries, today, weekStart) };
   });

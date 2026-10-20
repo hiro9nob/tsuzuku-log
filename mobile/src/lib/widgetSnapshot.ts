@@ -4,12 +4,13 @@
 // このファイルは React Native に依存させない（単体テストのため）
 
 import type { Day, WeekStart } from './day';
-import { effectiveHabitColor, effectiveSchedule, FREE_HABIT_COLOR, habitColor, type Habit, type Schedule } from './habit';
+import { effectiveHabitColor, FREE_HABIT_COLOR, habitColor, type Habit, type HabitRule, type Schedule } from './habit';
 import { effectiveIcon, parseIcon } from './icons';
 import { sfSymbolFor } from './sfSymbols';
 
 export const SNAPSHOT_KEY = 'widgetSnapshot';
-export const SNAPSHOT_VERSION = 2;
+// 3：習慣ごとに判定の決まりの履歴（rules）を足した
+export const SNAPSHOT_VERSION = 3;
 
 export type WidgetStrings = {
   today: string;
@@ -39,11 +40,13 @@ export type WidgetHabit = {
   target: number;
   step: number;
   unit: string;
-  /** Pro でないときの置き換えを済ませた繰り返し */
+  /** 繰り返し（Pro をやめても、すでに使っている繰り返しはそのまま） */
   schedule: Schedule;
   limitPeriod: Habit['limitPeriod'];
   startDay: Day;
   endDay: Day | null;
+  /** 目標や頻度を変える前の判定の決まり（古い順）。ウィジェットも、過去の日はそのとき使っていた決まりで見せる */
+  rules: HabitRule[];
 };
 
 export type WidgetSnapshot = {
@@ -68,7 +71,7 @@ export function buildSnapshot(input: {
   now: Date;
 }): WidgetSnapshot {
   const { isPro } = input;
-  const list = input.habits.map((h) => ({ ...h, schedule: effectiveSchedule(h.schedule, isPro), endDay: isPro ? h.endDay : null }));
+  const list = input.habits;
   return {
     version: SNAPSHOT_VERSION,
     generatedAt: input.now.toISOString(),
@@ -95,6 +98,7 @@ export function buildSnapshot(input: {
         limitPeriod: h.limitPeriod,
         startDay: h.startDay,
         endDay: h.endDay,
+        rules: h.rules,
       };
     }),
   };

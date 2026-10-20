@@ -4,18 +4,22 @@ import { and, asc, desc, eq, sql } from 'drizzle-orm';
 import { db } from '@/db/client';
 import { entries, habits, notes, type HabitRow } from '@/db/schema';
 
-import { addDays, isValidDay, type Day } from './day';
+import { addDays, isValidDay, type Day, type WeekStart } from './day';
 import {
   toHabitColorId,
-  parseNumberList,
+  parseCelebrated,
   parseReminders,
+  parseRules,
   parseSchedule,
   type Entry,
   type Habit,
   type HabitKind,
   type LimitPeriod,
+  type Schedule,
+  withAnchor,
 } from './habit';
 import { notifyDataChanged } from './revision';
+import { nextRules, streakUnitOf } from './stats';
 import { newId, nowIso } from './time';
 
 function toKind(v: string): HabitKind {
@@ -27,23 +31,29 @@ function toLimitPeriod(v: string): LimitPeriod {
 }
 
 export function rowToHabit(r: HabitRow): Habit {
+  const kind = toKind(r.kind);
+  const limitPeriod = toLimitPeriod(r.limitPeriod);
+  // 何日おきで数え始める日がない古い値は、始まりの日から数える
+  const schedule = withAnchor(parseSchedule(r.schedule), r.startDay);
   return {
     id: r.id,
     name: r.name,
     icon: r.icon,
     color: toHabitColorId(r.color),
-    kind: toKind(r.kind),
+    kind,
     target: r.target,
     step: r.step,
     unit: r.unit,
-    limitPeriod: toLimitPeriod(r.limitPeriod),
-    schedule: parseSchedule(r.schedule),
+    limitPeriod,
+    schedule,
     reminders: parseReminders(r.reminders),
     sortOrder: r.sortOrder,
     startDay: r.startDay,
     endDay: r.endDay && isValidDay(r.endDay) ? r.endDay : null,
     archivedDay: r.archivedDay && isValidDay(r.archivedDay) ? r.archivedDay : null,
-    celebrated: parseNumberList(r.celebrated),
+    // 数だけの古い形は、いまの連続の単位として読む
+    celebrated: parseCelebrated(r.celebrated, streakUnitOf({ kind, limitPeriod, schedule, target: r.target, startDay: r.startDay })),
+    rules: parseRules(r.rules).map((rule) => ({ ...rule, schedule: withAnchor(rule.schedule, r.startDay) })),
     createdAt: r.createdAt,
     updatedAt: r.updatedAt,
   };
@@ -131,7 +141,7 @@ export type HabitInput = Pick<
   'name' | 'icon' | 'color' | 'kind' | 'target' | 'step' | 'unit' | 'limitPeriod' | 'schedule' | 'reminders' | 'endDay'
 >;
 
-function inputColumns(input: HabitInput) {
+function inputColumns(input: HabitInput, schedule: Schedule) {
   return {
     name: input.name.trim(),
     icon: input.icon,
@@ -141,7 +151,7 @@ function inputColumns(input: HabitInput) {
     step: input.kind === 'check' ? 1 : input.step,
     unit: input.kind === 'check' ? '' : input.unit.trim(),
     limitPeriod: input.limitPeriod,
-    schedule: JSON.stringify(input.schedule),
+    schedule: JSON.stringify(schedule),
     reminders: JSON.stringify(input.reminders),
     endDay: input.endDay,
   };
@@ -152,14 +162,31 @@ export function createHabit(input: HabitInput, today: Day): string {
   const now = nowIso();
   const max = db.select({ v: sql<number>`coalesce(max(${habits.sortOrder}), -1)` }).from(habits).get()?.v ?? -1;
   db.insert(habits)
-    .values({ id, ...inputColumns(input), pinned: 0, sortOrder: max + 1, startDay: today, celebrated: '[]', createdAt: now, updatedAt: now })
+    // 何日おきは、つくった日から数える
+    .values({ id, ...inputColumns(input, withAnchor(input.schedule, today)), pinned: 0, sortOrder: max + 1, startDay: today, celebrated: '[]', createdAt: now, updatedAt: now })
     .run();
   notifyDataChanged();
   return id;
 }
 
-export function updateHabit(id: string, input: HabitInput): void {
-  db.update(habits).set({ ...inputColumns(input), updatedAt: nowIso() }).where(eq(habits.id, id)).run();
+/**
+ * 習慣を直す。記録のしかた・目標・頻度を変えたときは、前の決まりを残す
+ * （終わった日・期間の判定を変えないため。stats.ts の nextRules）
+ */
+export function updateHabit(id: string, input: HabitInput, today: Day, weekStart: WeekStart): void {
+  const current = getHabit(id);
+  // 何日おきの数え始める日：同じ間隔のままなら前の日を引き継ぎ、新しく選んだり間隔を変えたりしたら、きょうから数える
+  const prev = current?.schedule;
+  const schedule =
+    input.schedule.type === 'interval' && !input.schedule.anchor && prev?.type === 'interval' && prev.every === input.schedule.every
+      ? { ...input.schedule, anchor: prev.anchor }
+      : withAnchor(input.schedule, today);
+  const columns = inputColumns(input, schedule);
+  const rules = current ? nextRules(current, { kind: input.kind, target: columns.target, limitPeriod: input.limitPeriod, schedule }, today, weekStart) : [];
+  db.update(habits)
+    .set({ ...columns, rules: JSON.stringify(rules), updatedAt: nowIso() })
+    .where(eq(habits.id, id))
+    .run();
   notifyDataChanged();
 }
 
@@ -176,10 +203,38 @@ export function reorderHabits(ids: readonly string[]): void {
   notifyDataChanged();
 }
 
-export function markCelebrated(habit: Habit, milestone: number): void {
-  const next = [...new Set([...habit.celebrated, milestone])].sort((a, b) => a - b);
-  db.update(habits).set({ celebrated: JSON.stringify(next) }).where(eq(habits.id, habit.id)).run();
+/**
+ * 始まりの日とお祝いを出した節目を、前の値に戻す（記録を取り消したとき。lib/record.ts の undoChange）。
+ * 習慣をつくる前の日を記録すると始まりの日が早まり、節目に届くとお祝いの記録が増えるため
+ */
+export function restoreHabitState(habitId: string, state: { startDay: Day; celebrated: string[] }): void {
+  db.update(habits)
+    .set({ startDay: state.startDay, celebrated: JSON.stringify(state.celebrated) })
+    .where(eq(habits.id, habitId))
+    .run();
   notifyDataChanged();
+}
+
+/** お祝いを出した節目を足す（keys は milestoneKey。DB のいまの値に足す） */
+export function markCelebrated(habitId: string, keys: string[]): void {
+  const h = getHabit(habitId);
+  if (!h) return;
+  const next = [...new Set([...h.celebrated, ...keys])];
+  db.update(habits).set({ celebrated: JSON.stringify(next) }).where(eq(habits.id, habitId)).run();
+  notifyDataChanged();
+}
+
+/**
+ * 習慣をつくる前の日（day）を記録したら、その日から数える。
+ * 何日おきの数え始める日は、いまの値をはっきり保存してから動かす（始まりの日と一緒にずれないように。前の決まりも同じ）
+ */
+function moveStartDay(habitId: string, day: Day): void {
+  const h = getHabit(habitId);
+  if (!h || day >= h.startDay) return;
+  db.update(habits)
+    .set({ startDay: day, schedule: JSON.stringify(h.schedule), rules: JSON.stringify(h.rules) })
+    .where(eq(habits.id, habitId))
+    .run();
 }
 
 // ---- 記録 ----
@@ -213,7 +268,7 @@ export function getEntry(habitId: string, day: Day): Entry | null {
   return r ? { day: r.day, status: r.status === 'rest' ? 'rest' : 'done', value: r.value } : null;
 }
 
-/** その日の記録を置き換える。null なら消す（「記録しない」） */
+/** その日の記録を置き換える。null なら消す（「記録しない」）。0 以下の「できた」も消す */
 export function setEntry(habitId: string, day: Day, entry: Omit<Entry, 'day'> | null): void {
   if (entry === null || (entry.status === 'done' && entry.value <= 0)) {
     db.delete(entries).where(and(eq(entries.habitId, habitId), eq(entries.day, day))).run();
@@ -226,12 +281,7 @@ export function setEntry(habitId: string, day: Day, entry: Omit<Entry, 'day'> | 
         set: { status: entry.status, value: entry.value, recordedAt },
       })
       .run();
-    // 習慣をつくる前の日を記録したら、その日から数える。
-    // ただし「何日おき」は始まりの日が予定の基準なので動かさない（動かすと予定の日がずれる）
-    const row = db.select({ startDay: habits.startDay, schedule: habits.schedule }).from(habits).where(eq(habits.id, habitId)).get();
-    if (row && day < row.startDay && parseSchedule(row.schedule).type !== 'interval') {
-      db.update(habits).set({ startDay: day }).where(eq(habits.id, habitId)).run();
-    }
+    moveStartDay(habitId, day);
   }
   notifyDataChanged();
 }
@@ -248,11 +298,13 @@ export function addToEntry(habitId: string, day: Day, step: number): void {
         value = CASE WHEN entries.status = 'done' THEN round(entries.value + excluded.value, 2) ELSE excluded.value END,
         status = 'done', recorded_at = excluded.recorded_at`,
   );
-  const row = db.select({ startDay: habits.startDay, schedule: habits.schedule }).from(habits).where(eq(habits.id, habitId)).get();
-  if (row && day < row.startDay && parseSchedule(row.schedule).type !== 'interval') {
-    db.update(habits).set({ startDay: day }).where(eq(habits.id, habitId)).run();
-  }
+  moveStartDay(habitId, day);
   notifyDataChanged();
+}
+
+/** いちばん古い記録の日（記録がなければ null） */
+export function earliestEntryDay(habitId: string): Day | null {
+  return db.select({ v: sql<string | null>`min(${entries.day})` }).from(entries).where(eq(entries.habitId, habitId)).get()?.v ?? null;
 }
 
 /** 記録した時刻（現地時刻の時）。時間帯の分析に使う */

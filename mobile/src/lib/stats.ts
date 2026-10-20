@@ -1,5 +1,6 @@
 // 連続記録・達成率・日ごとの状態の計算
 // 「休んでも途切れない」：お休みの日と、予定のない日は連続を切らない。まだ終わっていない日（期間）も切らない
+// 「過去は変わらない」：目標や頻度を変えても、終わった日（期間）は、そのとき使っていた決まりで判定する（habit.rules）
 // このファイルは React Native に依存させない（単体テストのため）
 
 import {
@@ -14,7 +15,7 @@ import {
   type Day,
   type WeekStart,
 } from './day';
-import { isDone, type Entry, type EntryMap, type Habit, type Schedule } from './habit';
+import { isDone, milestoneKey, type Entry, type EntryMap, type Habit, type HabitRule, type Schedule } from './habit';
 
 export type StreakUnit = 'day' | 'week' | 'month';
 
@@ -26,9 +27,50 @@ export function roundAmount(n: number): number {
 export type UnitState = 'success' | 'fail' | 'skip' | 'pending';
 
 /** 連続を数える単位（日、週、月）と、その結果 */
-export type Unit = { start: Day; end: Day; state: UnitState };
+export type Unit = { start: Day; end: Day; unit: StreakUnit; state: UnitState };
 
-export type HabitLike = Pick<Habit, 'kind' | 'target' | 'limitPeriod' | 'startDay'> & { schedule: Schedule; endDay?: Day | null };
+export type HabitLike = Pick<Habit, 'kind' | 'target' | 'limitPeriod' | 'startDay'> & {
+  schedule: Schedule;
+  endDay?: Day | null;
+  /** 前の判定の決まり（古い順）。なければ、はじめからいまの決まり */
+  rules?: readonly HabitRule[];
+};
+
+/** 判定の決まりが同じあいだ。habit はその決まりを当てたもの、from〜until がその決まりを使った日（until が null ならいままで） */
+type Segment = { habit: HabitLike; from: Day; until: Day | null };
+
+function segmentsOf(habit: HabitLike): Segment[] {
+  const rules = habit.rules ?? [];
+  if (rules.length === 0) return [{ habit, from: habit.startDay, until: null }];
+  const out: Segment[] = [];
+  let from = habit.startDay;
+  for (const rule of rules) {
+    if (rule.until < from) continue;
+    const { kind, target, limitPeriod, schedule } = rule;
+    out.push({ habit: { ...habit, kind, target, limitPeriod, schedule, rules: [] }, from, until: rule.until });
+    from = addDays(rule.until, 1);
+  }
+  out.push({ habit: { ...habit, rules: [] }, from, until: null });
+  return out;
+}
+
+/** その日に使っていた決まり */
+function segmentOn(habit: HabitLike, day: Day): Segment {
+  const segments = segmentsOf(habit);
+  return segments.find((s) => s.until === null || day <= s.until) ?? segments[segments.length - 1];
+}
+
+/** その日に使っていた決まりを当てた習慣（過去の日の記録を直すときは、この決まりで扱う） */
+export function habitOn<H extends HabitLike>(habit: H, day: Day): H {
+  const rule = segmentOn(habit, day).habit;
+  return rule === habit ? habit : { ...habit, kind: rule.kind, target: rule.target, limitPeriod: rule.limitPeriod, schedule: rule.schedule };
+}
+
+/** いまの決まりを使い始めた日 */
+function currentFrom(habit: HabitLike): Day {
+  const segments = segmentsOf(habit);
+  return segments[segments.length - 1].from;
+}
 
 /** 期間限定の習慣で、終わりの日を過ぎたか */
 export function hasEnded(habit: HabitLike, today: Day): boolean {
@@ -87,8 +129,9 @@ export function isScheduledOn(habit: HabitLike, entries: EntryMap, day: Day): bo
     case 'weekdays':
       return schedule.days.includes(weekdayOf(day));
     case 'interval': {
-      const diff = diffDays(startDay, day);
-      return diff >= 0 && diff % schedule.every === 0;
+      // 数え始める日から every 日ごと（その日より前も同じ間隔で数える）
+      const diff = diffDays(schedule.anchor ?? startDay, day);
+      return ((diff % schedule.every) + schedule.every) % schedule.every === 0;
     }
     case 'monthlyWeekday': {
       if (!schedule.days.includes(weekdayOf(day))) return false;
@@ -119,21 +162,28 @@ function sumValues(entries: EntryMap, from: Day, to: Day): number {
   return roundAmount(total);
 }
 
-/** 習慣の始まりから today までの単位を、古い順に返す */
+/** 習慣の始まりから today までの単位を、古い順に返す。決まりを変えたときは、決まりごとに区切って判定する */
 export function evaluateUnits(habit: HabitLike, entries: EntryMap, today: Day, weekStart: WeekStart): Unit[] {
   if (habit.startDay > today) return [];
-  const period = periodOf(habit);
   const units: Unit[] = [];
   // 期間限定の習慣は、終わりの日までで数える
   const last = lastDayOf(habit, today);
 
-  for (let start = periodStart(habit.startDay, period, weekStart); start <= last; start = nextPeriod(start, period)) {
-    const end = periodEnd(start, period);
-    const from = start < habit.startDay ? habit.startDay : start;
-    const to = end > last ? last : end;
-    // 期間限定で終わった習慣は、最後の期間も終わったものとして決める
-    const isCurrent = end >= today && last === today;
-    units.push({ start, end, state: unitState(habit, entries, from, to, isCurrent, start < habit.startDay) });
+  for (const segment of segmentsOf(habit)) {
+    if (segment.from > last) break;
+    // 決まりを変えて終わった区切り。最後の期間は途中で終わる
+    const cut = segment.until !== null && segment.until < last;
+    const segmentLast = cut ? segment.until! : last;
+    const period = periodOf(segment.habit);
+    for (let start = periodStart(segment.from, period, weekStart); start <= segmentLast; start = nextPeriod(start, period)) {
+      const end = periodEnd(start, period);
+      const from = start < segment.from ? segment.from : start;
+      const to = end > segmentLast ? segmentLast : end;
+      // 期間限定で終わった習慣は、最後の期間も終わったものとして決める
+      const isCurrent = !cut && end >= today && last === today;
+      const partial = start < segment.from || (cut && end > segmentLast);
+      units.push({ start, end, unit: period, state: unitState(segment.habit, entries, from, to, isCurrent, partial) });
+    }
   }
   return units;
 }
@@ -144,9 +194,10 @@ function unitState(
   from: Day,
   to: Day,
   isCurrent: boolean,
-  isPartialFirst: boolean,
+  isPartial: boolean,
 ): UnitState {
   // 上限型：期間の合計が上限を超えたら切れる。終わった期間で超えていなければできた
+  // （何も記録していない期間も、上限内としてできたにする。やらなかったことが成功なので、記録の手間をかけさせない）
   if (habit.kind === 'limit') {
     if (from === to && entries.get(from)?.status === 'rest') return 'skip';
     if (sumValues(entries, from, to) > habit.target) return 'fail';
@@ -167,8 +218,8 @@ function unitState(
     if (needed <= 0) return done > 0 ? 'success' : 'skip';
     if (done >= needed) return 'success';
     if (isCurrent) return 'pending';
-    // 途中から始めた最初の期間は、届かなくても切らない
-    return isPartialFirst ? 'skip' : 'fail';
+    // 途中から始めた（決まりを変えて途中で終わった）期間は、届かなくても切らない
+    return isPartial ? 'skip' : 'fail';
   }
 
   // 日ごと
@@ -181,11 +232,14 @@ function unitState(
 
 export type Streaks = { current: number; longest: number; unit: StreakUnit };
 
+/** 連続はいまの単位で数える。単位を変える前の別の単位は、切れたときだけ連続を切る（足さない） */
 export function streaksFromUnits(units: readonly Unit[], unit: StreakUnit): Streaks {
   let run = 0;
   let longest = 0;
   for (const u of units) {
-    if (u.state === 'success') {
+    if (u.unit !== unit) {
+      if (u.state === 'fail') run = 0;
+    } else if (u.state === 'success') {
       run += 1;
       if (run > longest) longest = run;
     } else if (u.state === 'fail') {
@@ -222,11 +276,14 @@ export function dayStatus(habit: HabitLike, entries: EntryMap, day: Day, today: 
   if (day < habit.startDay || day > today || (habit.endDay && day > habit.endDay)) return 'none';
   const entry = entries.get(day);
   if (entry?.status === 'rest') return 'rest';
+  // その日に使っていた決まりで見せる
+  const segment = segmentOn(habit, day);
+  habit = segment.habit;
 
   if (habit.kind === 'limit') {
     const period = habit.limitPeriod;
     const start = periodStart(day, period, weekStart);
-    const from = start < habit.startDay ? habit.startDay : start;
+    const from = start < segment.from ? segment.from : start;
     if (sumValues(entries, from, day) > habit.target) return 'over';
     return day === today ? 'open' : 'done';
   }
@@ -262,16 +319,64 @@ export function todayStateOf(habit: HabitLike, entries: EntryMap, today: Day, we
 export function periodTotal(habit: HabitLike, entries: EntryMap, today: Day, weekStart: WeekStart): number {
   const period = habit.kind === 'limit' ? habit.limitPeriod : 'day';
   const start = periodStart(today, period, weekStart);
-  return sumValues(entries, start < habit.startDay ? habit.startDay : start, today);
+  const from = currentFrom(habit);
+  return sumValues(entries, start < from ? from : start, today);
 }
 
-/** 週に何回・月に何回の、いまの期間でできた回数 */
-export function doneInCurrentPeriod(habit: HabitLike, entries: EntryMap, today: Day, weekStart: WeekStart): number {
-  const period = periodOf(habit);
-  const start = periodStart(today, period, weekStart);
-  let n = 0;
-  for (const day of dayRange(start, today)) if (isDone(habit, entries.get(day))) n += 1;
-  return n;
+/**
+ * 週に何回・月に何回の、いまの期間の進み具合。お休みの日は必要な回数から引く（unitState と同じ）。
+ * それ以外の習慣は null
+ */
+export function periodProgress(
+  habit: HabitLike,
+  entries: EntryMap,
+  today: Day,
+  weekStart: WeekStart,
+): { done: number; rest: number; times: number; needed: number } | null {
+  const schedule = habit.schedule;
+  if (habit.kind === 'limit' || (schedule.type !== 'perWeek' && schedule.type !== 'perMonth')) return null;
+  const start = periodStart(today, periodOf(habit), weekStart);
+  const from = currentFrom(habit);
+  let done = 0;
+  let rest = 0;
+  for (const day of dayRange(start < from ? from : start, today)) {
+    const e = entries.get(day);
+    if (e?.status === 'rest') rest += 1;
+    else if (isDone(habit, e)) done += 1;
+  }
+  return { done, rest, times: schedule.times, needed: Math.max(schedule.times - rest, 0) };
+}
+
+type RuleFields = Pick<HabitRule, 'kind' | 'target' | 'limitPeriod' | 'schedule'>;
+
+function sameRule(a: RuleFields, b: RuleFields): boolean {
+  const target = (r: RuleFields) => (r.kind === 'check' ? 1 : r.target);
+  return a.kind === b.kind && target(a) === target(b) && a.limitPeriod === b.limitPeriod && JSON.stringify(a.schedule) === JSON.stringify(b.schedule);
+}
+
+/** 週（月）に何回の回数だけ、または上限型の上限だけを変えたか（いまの期間から新しい決まりにしてよい変更） */
+function onlyPeriodGoalChanged(a: RuleFields, b: RuleFields): boolean {
+  if (a.kind !== b.kind) return false;
+  if (a.kind === 'limit') return a.limitPeriod === b.limitPeriod;
+  const s = a.schedule;
+  const t = b.schedule;
+  return a.target === b.target && (s.type === 'perWeek' || s.type === 'perMonth') && s.type === t.type;
+}
+
+/**
+ * 判定の決まりを変えるときの、新しい「前の決まり」の一覧。終わった日・期間の判定が変わらないよう、いまの決まりを残す。
+ * 週（月）に何回の回数だけ、または上限型の上限だけを変えたときは、いまの週（月）から新しい決まりにする（まだ決まっていない期間なので）。
+ * それ以外は、きょうから新しい決まりにする（きのうまでの日の見え方を変えない）
+ */
+export function nextRules(current: HabitLike & RuleFields, next: RuleFields, today: Day, weekStart: WeekStart): HabitRule[] {
+  const rules = [...(current.rules ?? [])];
+  if (sameRule(current, next)) return rules;
+  const period = periodOf(current);
+  const until = period !== 'day' && onlyPeriodGoalChanged(current, next) ? addDays(periodStart(today, period, weekStart), -1) : addDays(today, -1);
+  // いまの決まりを1日も使っていなければ、残さない（同じ日に何度も直したときなど）
+  if (until < currentFrom(current)) return rules;
+  const { kind, target, limitPeriod, schedule } = current;
+  return [...rules, { until, kind, target, limitPeriod, schedule }];
 }
 
 // 節目のお祝い（連続の単位ごと）
@@ -282,10 +387,10 @@ export const MILESTONES: Record<StreakUnit, readonly number[]> = {
 };
 
 /** いまの連続が、まだお祝いしていない節目に届いたら、その節目を返す */
-export function reachedMilestone(streaks: Streaks, celebrated: readonly number[]): number | null {
+export function reachedMilestone(streaks: Streaks, celebrated: readonly string[]): number | null {
   const hit = MILESTONES[streaks.unit].includes(streaks.current) ? streaks.current : null;
   if (hit === null) return null;
-  return celebrated.includes(hit) ? null : hit;
+  return celebrated.includes(milestoneKey(streaks.unit, hit)) ? null : hit;
 }
 
 // ---- 詳細統計（Pro） ----
@@ -323,7 +428,7 @@ export function weekdayCounts(habit: HabitLike, entries: EntryMap, from: Day, to
   const counts = Array<number>(7).fill(0);
   for (const [day, e] of entries) {
     if (day < from || day > to) continue;
-    if (isDone(habit, e)) counts[weekdayOf(day)] += 1;
+    if (isDone(segmentOn(habit, day).habit, e)) counts[weekdayOf(day)] += 1;
   }
   return counts;
 }

@@ -59,7 +59,17 @@
     "openHint": "Affiche les détails",
     "rest": "Jour de repos aujourd’hui",
     "unrest": "Annuler le jour de repos",
-    "reorder": "Réorganiser"
+    "reorder": "Réorganiser",
+    "menu": "Plus d’options pour {{name}}",
+    "fixYesterday": "Corriger le suivi d’hier",
+    "editToday": "Suivi et note du jour",
+    "enterAmount": "Saisir une quantité",
+    "decrease": "Retirer {{step}}",
+    "milestone": "{{name}} : {{streak}} !",
+    "share": "Partager",
+    "rested": "{{name}} : jour de repos",
+    "dayLabel": "{{date}}, {{status}}",
+    "dayHint": "Corriger le suivi de ce jour"
   },
   "streak": {
     "day_one": "Série de {{count}} jour",
@@ -95,7 +105,9 @@
   },
   "period": {
     "perWeek": "Cette semaine {{done}} / {{times}}",
-    "perMonth": "Ce mois-ci {{done}} / {{times}}"
+    "perMonth": "Ce mois-ci {{done}} / {{times}}",
+    "perWeekRest": "Cette semaine {{done}} / {{times}} ({{rest}} de repos)",
+    "perMonthRest": "Ce mois-ci {{done}} / {{times}} ({{rest}} de repos)"
   },
   "status": {
     "done": "Fait",
@@ -137,7 +149,10 @@
     "period": "Durée",
     "limited": "Durée limitée",
     "endDay": "Se termine le",
-    "limitedHint": "Fixez une date de fin, comme pour un défi de 30 jours. Ensuite, l’habitude quitte Aujourd’hui et ses entrées restent dans Bilan."
+    "limitedHint": "Fixez une date de fin, comme pour un défi de 30 jours. Ensuite, l’habitude quitte Aujourd’hui et ses entrées restent dans Bilan.",
+    "showDetails": "Plus d’options",
+    "detailsHint": "Icône, couleur, période, rappels",
+    "suggestions": "Choisir une suggestion"
   },
   "kinds": {
     "check": "Fait",

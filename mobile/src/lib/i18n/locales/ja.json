@@ -59,7 +59,17 @@
     "openHint": "詳しく見る",
     "rest": "きょうはお休みにする",
     "unrest": "お休みをやめる",
-    "reorder": "並べ替え"
+    "reorder": "並べ替え",
+    "menu": "{{name}}のメニュー",
+    "fixYesterday": "きのうの記録を直す",
+    "editToday": "きょうの記録とひとこと",
+    "enterAmount": "量を入れる",
+    "decrease": "{{step}} 減らす",
+    "milestone": "{{name}}が{{streak}}になりました",
+    "share": "シェア",
+    "rested": "{{name}}をお休みにしました",
+    "dayLabel": "{{date}}、{{status}}",
+    "dayHint": "この日の記録を直す"
   },
   "streak": {
     "day_other": "{{count}}日連続",
@@ -83,7 +93,9 @@
   },
   "period": {
     "perWeek": "今週 {{done}} / {{times}}",
-    "perMonth": "今月 {{done}} / {{times}}"
+    "perMonth": "今月 {{done}} / {{times}}",
+    "perWeekRest": "今週 {{done}} / {{times}}（お休み {{rest}}日）",
+    "perMonthRest": "今月 {{done}} / {{times}}（お休み {{rest}}日）"
   },
   "status": {
     "done": "できた",
@@ -125,7 +137,10 @@
     "period": "期間",
     "limited": "期間限定",
     "endDay": "終わる日",
-    "limitedHint": "30日チャレンジのように、終わりの日を決められます。終わった習慣は「きょう」に出なくなり、記録は振り返りに残ります。"
+    "limitedHint": "30日チャレンジのように、終わりの日を決められます。終わった習慣は「きょう」に出なくなり、記録は振り返りに残ります。",
+    "showDetails": "詳しく設定",
+    "detailsHint": "アイコン、色、期間、通知",
+    "suggestions": "候補から選ぶ"
   },
   "kinds": {
     "check": "できた",

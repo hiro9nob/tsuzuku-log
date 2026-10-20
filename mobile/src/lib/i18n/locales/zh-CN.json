@@ -59,7 +59,17 @@
     "openHint": "查看详情",
     "rest": "今天设为休息日",
     "unrest": "取消休息日",
-    "reorder": "排序"
+    "reorder": "排序",
+    "menu": "{{name}}的更多操作",
+    "fixYesterday": "修改昨天的记录",
+    "editToday": "今天的记录和备注",
+    "enterAmount": "输入数量",
+    "decrease": "减少 {{step}}",
+    "milestone": "{{name}}已{{streak}}！",
+    "share": "分享",
+    "rested": "已将{{name}}设为休息日",
+    "dayLabel": "{{date}}，{{status}}",
+    "dayHint": "修改这一天的记录"
   },
   "streak": {
     "day_other": "连续 {{count}} 天",
@@ -83,7 +93,9 @@
   },
   "period": {
     "perWeek": "本周 {{done}} / {{times}}",
-    "perMonth": "本月 {{done}} / {{times}}"
+    "perMonth": "本月 {{done}} / {{times}}",
+    "perWeekRest": "本周 {{done}} / {{times}}（休息 {{rest}} 天）",
+    "perMonthRest": "本月 {{done}} / {{times}}（休息 {{rest}} 天）"
   },
   "status": {
     "done": "已完成",
@@ -125,7 +137,10 @@
     "period": "期间",
     "limited": "限期",
     "endDay": "结束日",
-    "limitedHint": "可以像30天挑战一样设定结束日。结束后，这个习惯不再出现在“今天”，记录仍保留在“回顾”中。"
+    "limitedHint": "可以像30天挑战一样设定结束日。结束后，这个习惯不再出现在“今天”，记录仍保留在“回顾”中。",
+    "showDetails": "更多设置",
+    "detailsHint": "图标、颜色、期限、提醒",
+    "suggestions": "从推荐中选择"
   },
   "kinds": {
     "check": "完成",

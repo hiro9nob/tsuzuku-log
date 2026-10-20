@@ -63,8 +63,21 @@ function Section({ title, children, accessory }: { title: string; children: Reac
   );
 }
 
-/** 習慣をつくる・直す画面（1画面：名前、アイコン、色、種類、頻度、通知） */
-export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; onChange: (v: HabitInput) => void; autoFocus?: boolean }) {
+/**
+ * 習慣をつくる・直す画面（1画面：名前、記録のしかた、頻度。アイコン・色・期間・通知は「詳しく設定」）。
+ * collapsible なら（つくるとき）、詳しい設定を閉じておき、少ない判断で作れるようにする
+ */
+export function HabitForm({
+  value,
+  onChange,
+  autoFocus,
+  collapsible,
+}: {
+  value: HabitInput;
+  onChange: (v: HabitInput) => void;
+  autoFocus?: boolean;
+  collapsible?: boolean;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
   const isPro = useIsPro();
@@ -72,6 +85,7 @@ export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; o
   const weekStart = useWeekStart();
   const today = useToday();
   const [showAllIcons, setShowAllIcons] = useState(false);
+  const [showDetails, setShowDetails] = useState(!collapsible);
   const [emoji, setEmoji] = useState(() => {
     const v = parseIcon(value.icon);
     return v.type === 'emoji' ? v.text : '';
@@ -92,14 +106,20 @@ export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; o
     onChange({ ...value, kind, target, step });
   };
 
+  // Pro の繰り返しは、新しく使うときと変えるときだけ Pro が要る（Pro をやめても、いまの設定はそのまま動く）
   const setSchedule = (next: Schedule) => {
     if (isProSchedule(next) && !gate(t('pro.features.repeat'))) return;
     set('schedule', next);
   };
 
+  // 期間限定も同じ。やめる（オフにする）のは、いつでもできる
   const toggleEndDay = (on: boolean) => {
     if (on && !gate(t('pro.features.repeat'))) return;
     set('endDay', on ? addDays(today, 29) : null);
+  };
+  const setEndDay = (day: string) => {
+    if (!gate(t('pro.features.repeat'))) return;
+    set('endDay', day);
   };
 
   const pickIcon = (icon: string, pro: boolean) => {
@@ -134,7 +154,14 @@ export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; o
   return (
     <View style={styles.form}>
       <View style={[styles.nameRow, { backgroundColor: theme.surface }]}>
-        <HabitIcon icon={value.icon} color={value.color} size={48} />
+        <Pressable
+          onPress={() => setShowDetails(true)}
+          disabled={showDetails}
+          accessibilityRole="button"
+          accessibilityLabel={t('form.icon')}
+          accessibilityElementsHidden={showDetails}>
+          <HabitIcon icon={value.icon} color={value.color} size={48} />
+        </Pressable>
         <TextInput
           value={value.name}
           onChangeText={(v) => set('name', v)}
@@ -147,89 +174,6 @@ export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; o
           style={[styles.nameInput, { color: theme.text }]}
         />
       </View>
-
-      <Section title={t('form.icon')}>
-        <View style={styles.grid}>
-          {iconChoices.map(({ name, pro }) => {
-            const selected = value.icon === name;
-            return (
-              <Pressable
-                key={name}
-                onPress={() => pickIcon(name, pro)}
-                accessibilityRole="button"
-                accessibilityLabel={name}
-                accessibilityState={{ selected }}
-                style={[styles.iconCell, { backgroundColor: selected ? theme.accentSoft : 'transparent' }]}>
-                <Ionicons
-                  name={name as ComponentProps<typeof Ionicons>['name']}
-                  size={24}
-                  color={pro && !isPro ? theme.textSecondary : theme.habit(value.color)}
-                />
-              </Pressable>
-            );
-          })}
-        </View>
-        <Pressable onPress={() => setShowAllIcons(!showAllIcons)} accessibilityRole="button" style={styles.linkRow}>
-          <Text style={[styles.link, { color: theme.text }]}>{showAllIcons ? t('form.fewerIcons') : t('form.moreIcons')}</Text>
-          {!isPro ? <ProBadge /> : null}
-        </Pressable>
-        <View style={styles.emojiRow}>
-          <Text style={[styles.label, { color: theme.text }]}>{t('form.emoji')}</Text>
-          {!isPro ? <ProBadge /> : null}
-          <TextInput
-            value={emoji}
-            onFocus={() => {
-              if (!isPro) gate(t('pro.features.icons'));
-            }}
-            editable={isPro}
-            onChangeText={(text) => {
-              const e = firstEmoji(text);
-              setEmoji(e ?? '');
-              if (e) set('icon', emojiIcon(e));
-            }}
-            placeholder="🙂"
-            placeholderTextColor={theme.textSecondary}
-            accessibilityLabel={t('form.emoji')}
-            style={[styles.emojiInput, { color: theme.text, backgroundColor: theme.surfaceAlt }]}
-          />
-        </View>
-        <View style={styles.emojiRow}>
-          <Text style={[styles.label, { color: theme.text }]}>{t('form.image')}</Text>
-          {!isPro ? <ProBadge /> : null}
-          <Pressable
-            onPress={pickImage}
-            accessibilityRole="button"
-            accessibilityLabel={t('form.chooseImage')}
-            style={({ pressed }) => [styles.imageButton, { backgroundColor: theme.surfaceAlt, opacity: pressed ? 0.6 : 1 }]}>
-            <Ionicons name="image-outline" size={18} color={theme.text} />
-            <Text style={[styles.imageButtonText, { color: theme.text }]}>{t('form.chooseImage')}</Text>
-          </Pressable>
-        </View>
-      </Section>
-
-      <Section title={t('form.color')} accessory={!isPro ? <ProBadge /> : null}>
-        <View style={styles.colors}>
-          {HABIT_COLORS.map((c) => {
-            const selected = (isPro ? value.color : FREE_HABIT_COLOR) === c.id;
-            return (
-              <Pressable
-                key={c.id}
-                onPress={() => {
-                  if (c.id !== FREE_HABIT_COLOR && !gate(t('pro.features.colors'))) return;
-                  set('color', c.id);
-                }}
-                accessibilityRole="button"
-                accessibilityLabel={t(`colors.${c.id}`)}
-                accessibilityState={{ selected }}
-                style={[styles.swatchRing, { borderColor: selected ? theme.text : 'transparent' }]}>
-                <View style={[styles.swatch, { backgroundColor: c.id === FREE_HABIT_COLOR ? theme.accent : habitColor(c.id, theme.isDark) }]}>
-                  {c.id !== FREE_HABIT_COLOR && !isPro ? <Ionicons name="lock-closed" size={12} color={theme.isDark ? '#121212' : '#FFFFFF'} /> : null}
-                </View>
-              </Pressable>
-            );
-          })}
-        </View>
-      </Section>
 
       <Section title={t('form.kind')}>
         <View style={styles.chips}>
@@ -360,7 +304,7 @@ export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; o
             <Stepper value={schedule.times} min={1} max={7} label={t('schedule.timesPerWeek', { count: schedule.times })} onChange={(times) => set('schedule', { type: 'perWeek', times })} />
           ) : null}
           {schedule.type === 'interval' ? (
-            <Stepper value={schedule.every} min={2} max={30} label={t('schedule.everyNDays', { count: schedule.every })} onChange={(every) => set('schedule', { type: 'interval', every })} />
+            <Stepper value={schedule.every} min={2} max={30} label={t('schedule.everyNDays', { count: schedule.every })} onChange={(every) => setSchedule({ type: 'interval', every })} />
           ) : null}
           {schedule.type === 'monthlyWeekday' ? (
             <>
@@ -377,7 +321,7 @@ export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; o
                       selected={on}
                       onPress={() => {
                         const weeks = on ? schedule.weeks.filter((x) => x !== w) : [...schedule.weeks, w].sort();
-                        if (weeks.length > 0) set('schedule', { ...schedule, weeks });
+                        if (weeks.length > 0) setSchedule({ ...schedule, weeks });
                       }}
                     />
                   );
@@ -396,7 +340,7 @@ export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; o
                       selected={on}
                       onPress={() => {
                         const days = on ? schedule.days.filter((x) => x !== d) : [...schedule.days, d].sort();
-                        if (days.length > 0) set('schedule', { ...schedule, days });
+                        if (days.length > 0) setSchedule({ ...schedule, days });
                       }}
                     />
                   );
@@ -405,78 +349,176 @@ export function HabitForm({ value, onChange, autoFocus }: { value: HabitInput; o
             </>
           ) : null}
           {schedule.type === 'afterDone' ? (
-            <Stepper value={schedule.days} min={1} max={60} label={t('schedule.afterDoneDays', { count: schedule.days })} onChange={(days) => set('schedule', { type: 'afterDone', days })} />
+            <Stepper value={schedule.days} min={1} max={60} label={t('schedule.afterDoneDays', { count: schedule.days })} onChange={(days) => setSchedule({ type: 'afterDone', days })} />
           ) : null}
           {schedule.type === 'perMonth' ? (
-            <Stepper value={schedule.times} min={1} max={31} label={t('schedule.timesPerMonth', { count: schedule.times })} onChange={(times) => set('schedule', { type: 'perMonth', times })} />
+            <Stepper value={schedule.times} min={1} max={31} label={t('schedule.timesPerMonth', { count: schedule.times })} onChange={(times) => setSchedule({ type: 'perMonth', times })} />
           ) : null}
           <Text style={[styles.hint, { color: theme.textSecondary }]}>{t('schedule.restHint')}</Text>
         </Section>
       ) : null}
 
-      <Section title={t('form.period')} accessory={!isPro ? <ProBadge /> : null}>
-        <View style={styles.numberRow}>
-          <Text style={[styles.label, { color: theme.text }]}>{t('form.limited')}</Text>
-          <Switch value={value.endDay !== null && isPro} onValueChange={toggleEndDay} accessibilityLabel={t('form.limited')} />
-        </View>
-        {value.endDay !== null && isPro ? (
-          <View style={styles.numberRow}>
-            <Text style={[styles.label, { color: theme.text }]}>{t('form.endDay')}</Text>
-            <DateField value={value.endDay} minimum={today} label={t('form.endDay')} onChange={(d) => set('endDay', d)} />
-          </View>
-        ) : null}
-        <Text style={[styles.hint, { color: theme.textSecondary }]}>{t('form.limitedHint')}</Text>
-      </Section>
-
-      <Section title={t('form.reminders')} accessory={value.reminders.length >= FREE_REMINDERS && !isPro ? <ProBadge /> : null}>
-        {value.reminders.map((r, i) => (
-          <View key={i} style={styles.reminder}>
-            <View style={styles.reminderRow}>
-              <Ionicons name="notifications-outline" size={20} color={theme.textSecondary} />
-              <View style={styles.flex}>
-                <TimeField
-                  value={r.time}
-                  label={t('form.reminderTime', { time: formatTimeOfDay(r.time) })}
-                  onChange={(time) => setReminders(value.reminders.map((x, j) => (j === i ? { ...x, time } : x)))}
-                />
-              </View>
-              <Pressable
-                onPress={() => setReminders(value.reminders.filter((_, j) => j !== i))}
-                accessibilityRole="button"
-                accessibilityLabel={t('form.removeReminder')}
-                hitSlop={8}>
-                <Ionicons name="close-circle" size={22} color={theme.textSecondary} />
-              </Pressable>
-            </View>
-            <View style={styles.weekdays}>
-              {orderedWeekdays(weekStart).map((d) => {
-                const on = r.days ? r.days.includes(d) : true;
+      {showDetails ? (
+        <>
+          <Section title={t('form.icon')}>
+            <View style={styles.grid}>
+              {iconChoices.map(({ name, pro }) => {
+                const selected = value.icon === name;
                 return (
-                  <Chip
-                    key={d}
-                    grow
-                    compact
-                    label={weekdayName(d, 'narrow')}
-                    accessibilityLabel={weekdayName(d, 'short')}
-                    selected={on}
-                    onPress={() => {
-                      if (!gate(t('pro.features.reminders'))) return;
-                      const current = r.days ?? [0, 1, 2, 3, 4, 5, 6];
-                      const days = on ? current.filter((x) => x !== d) : [...current, d].sort();
-                      if (days.length === 0) return;
-                      setReminders(value.reminders.map((x, j) => (j === i ? { time: x.time, ...(days.length === 7 ? {} : { days }) } : x)));
-                    }}
-                  />
+                  <Pressable
+                    key={name}
+                    onPress={() => pickIcon(name, pro)}
+                    accessibilityRole="button"
+                    accessibilityLabel={name}
+                    accessibilityState={{ selected }}
+                    style={[styles.iconCell, { backgroundColor: selected ? theme.accentSoft : 'transparent' }]}>
+                    <Ionicons
+                      name={name as ComponentProps<typeof Ionicons>['name']}
+                      size={24}
+                      color={pro && !isPro ? theme.textSecondary : theme.habit(value.color)}
+                    />
+                  </Pressable>
                 );
               })}
             </View>
+            <Pressable onPress={() => setShowAllIcons(!showAllIcons)} accessibilityRole="button" style={styles.linkRow}>
+              <Text style={[styles.link, { color: theme.text }]}>{showAllIcons ? t('form.fewerIcons') : t('form.moreIcons')}</Text>
+              {!isPro ? <ProBadge /> : null}
+            </Pressable>
+            <View style={styles.emojiRow}>
+              <Text style={[styles.label, { color: theme.text }]}>{t('form.emoji')}</Text>
+              {!isPro ? <ProBadge /> : null}
+              <TextInput
+                value={emoji}
+                onFocus={() => {
+                  if (!isPro) gate(t('pro.features.icons'));
+                }}
+                editable={isPro}
+                onChangeText={(text) => {
+                  const e = firstEmoji(text);
+                  setEmoji(e ?? '');
+                  if (e) set('icon', emojiIcon(e));
+                }}
+                placeholder="🙂"
+                placeholderTextColor={theme.textSecondary}
+                accessibilityLabel={t('form.emoji')}
+                style={[styles.emojiInput, { color: theme.text, backgroundColor: theme.surfaceAlt }]}
+              />
+            </View>
+            <View style={styles.emojiRow}>
+              <Text style={[styles.label, { color: theme.text }]}>{t('form.image')}</Text>
+              {!isPro ? <ProBadge /> : null}
+              <Pressable
+                onPress={pickImage}
+                accessibilityRole="button"
+                accessibilityLabel={t('form.chooseImage')}
+                style={({ pressed }) => [styles.imageButton, { backgroundColor: theme.surfaceAlt, opacity: pressed ? 0.6 : 1 }]}>
+                <Ionicons name="image-outline" size={18} color={theme.text} />
+                <Text style={[styles.imageButtonText, { color: theme.text }]}>{t('form.chooseImage')}</Text>
+              </Pressable>
+            </View>
+          </Section>
+
+          <Section title={t('form.color')} accessory={!isPro ? <ProBadge /> : null}>
+            <View style={styles.colors}>
+              {HABIT_COLORS.map((c) => {
+                const selected = (isPro ? value.color : FREE_HABIT_COLOR) === c.id;
+                return (
+                  <Pressable
+                    key={c.id}
+                    onPress={() => {
+                      if (c.id !== FREE_HABIT_COLOR && !gate(t('pro.features.colors'))) return;
+                      set('color', c.id);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={t(`colors.${c.id}`)}
+                    accessibilityState={{ selected }}
+                    style={[styles.swatchRing, { borderColor: selected ? theme.text : 'transparent' }]}>
+                    <View style={[styles.swatch, { backgroundColor: c.id === FREE_HABIT_COLOR ? theme.accent : habitColor(c.id, theme.isDark) }]}>
+                      {c.id !== FREE_HABIT_COLOR && !isPro ? <Ionicons name="lock-closed" size={12} color={theme.isDark ? '#121212' : '#FFFFFF'} /> : null}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </Section>
+
+          <Section title={t('form.period')} accessory={!isPro ? <ProBadge /> : null}>
+            <View style={styles.numberRow}>
+              <Text style={[styles.label, { color: theme.text }]}>{t('form.limited')}</Text>
+              <Switch value={value.endDay !== null} onValueChange={toggleEndDay} accessibilityLabel={t('form.limited')} />
+            </View>
+            {value.endDay !== null ? (
+              <View style={styles.numberRow}>
+                <Text style={[styles.label, { color: theme.text }]}>{t('form.endDay')}</Text>
+                <DateField value={value.endDay} minimum={today} label={t('form.endDay')} onChange={setEndDay} />
+              </View>
+            ) : null}
+            <Text style={[styles.hint, { color: theme.textSecondary }]}>{t('form.limitedHint')}</Text>
+          </Section>
+
+          <Section title={t('form.reminders')} accessory={value.reminders.length >= FREE_REMINDERS && !isPro ? <ProBadge /> : null}>
+            {value.reminders.map((r, i) => (
+              <View key={i} style={styles.reminder}>
+                <View style={styles.reminderRow}>
+                  <Ionicons name="notifications-outline" size={20} color={theme.textSecondary} />
+                  <View style={styles.flex}>
+                    <TimeField
+                      value={r.time}
+                      label={t('form.reminderTime', { time: formatTimeOfDay(r.time) })}
+                      onChange={(time) => setReminders(value.reminders.map((x, j) => (j === i ? { ...x, time } : x)))}
+                    />
+                  </View>
+                  <Pressable
+                    onPress={() => setReminders(value.reminders.filter((_, j) => j !== i))}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('form.removeReminder')}
+                    hitSlop={8}>
+                    <Ionicons name="close-circle" size={22} color={theme.textSecondary} />
+                  </Pressable>
+                </View>
+                <View style={styles.weekdays}>
+                  {orderedWeekdays(weekStart).map((d) => {
+                    const on = r.days ? r.days.includes(d) : true;
+                    return (
+                      <Chip
+                        key={d}
+                        grow
+                        compact
+                        label={weekdayName(d, 'narrow')}
+                        accessibilityLabel={weekdayName(d, 'short')}
+                        selected={on}
+                        onPress={() => {
+                          if (!gate(t('pro.features.reminders'))) return;
+                          const current = r.days ?? [0, 1, 2, 3, 4, 5, 6];
+                          const days = on ? current.filter((x) => x !== d) : [...current, d].sort();
+                          if (days.length === 0) return;
+                          setReminders(value.reminders.map((x, j) => (j === i ? { time: x.time, ...(days.length === 7 ? {} : { days }) } : x)));
+                        }}
+                      />
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+            <Pressable onPress={addReminder} accessibilityRole="button" style={styles.linkRow}>
+              <Ionicons name="add" size={20} color={theme.text} />
+              <Text style={[styles.link, { color: theme.text }]}>{t('form.addReminder')}</Text>
+            </Pressable>
+          </Section>
+        </>
+      ) : (
+        <Pressable
+          onPress={() => setShowDetails(true)}
+          accessibilityRole="button"
+          style={({ pressed }) => [styles.detailsButton, { backgroundColor: theme.surface, opacity: pressed ? 0.6 : 1 }]}>
+          <View style={styles.flex}>
+            <Text style={[styles.link, { color: theme.text }]}>{t('form.showDetails')}</Text>
+            <Text style={[styles.hint, { color: theme.textSecondary }]}>{t('form.detailsHint')}</Text>
           </View>
-        ))}
-        <Pressable onPress={addReminder} accessibilityRole="button" style={styles.linkRow}>
-          <Ionicons name="add" size={20} color={theme.text} />
-          <Text style={[styles.link, { color: theme.text }]}>{t('form.addReminder')}</Text>
+          <Ionicons name="chevron-down" size={20} color={theme.textSecondary} />
         </Pressable>
-      </Section>
+      )}
     </View>
   );
 }
@@ -535,4 +577,5 @@ const styles = StyleSheet.create({
   smallInput: { minWidth: 110, textAlign: 'right', fontSize: 17, borderRadius: radius.s, paddingHorizontal: spacing.s, paddingVertical: spacing.s },
   reminder: { gap: spacing.s },
   reminderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.s },
+  detailsButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.m, borderRadius: radius.l, padding: spacing.m },
 });

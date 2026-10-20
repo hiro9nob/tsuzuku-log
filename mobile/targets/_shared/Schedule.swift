@@ -52,6 +52,39 @@ enum DayMath {
   }
 }
 
+/// 判定の決まりが同じあいだ（mobile/src/lib/stats.ts の Segment と同じ考え方）
+struct RuleSegment {
+  /// その決まりを当てた習慣
+  let habit: WidgetSnapshot.Habit
+  /// その決まりを使い始めた日
+  let from: String
+  /// その決まりを使い終えた日（nil ならいままで）
+  let until: String?
+}
+
+extension WidgetSnapshot.Habit {
+  /// 決まりだけを入れ替えた習慣
+  func applying(_ rule: WidgetSnapshot.Rule) -> WidgetSnapshot.Habit {
+    WidgetSnapshot.Habit(
+      id: id, name: name, symbol: symbol, emoji: emoji, image: image, color: color,
+      kind: rule.kind, target: rule.target, step: step, unit: unit, schedule: rule.schedule,
+      limitPeriod: rule.limitPeriod, startDay: startDay, endDay: endDay, rules: nil
+    )
+  }
+
+  /// その日に使っていた決まり（mobile/src/lib/stats.ts の segmentOn と同じ）。
+  /// 目標や頻度を変えても、過去の日はそのとき使っていた決まりで見せる
+  func segment(on day: String) -> RuleSegment {
+    var from = startDay
+    for rule in rules ?? [] {
+      if rule.until < from { continue }
+      if day <= rule.until { return RuleSegment(habit: applying(rule), from: from, until: rule.until) }
+      from = DayMath.add(rule.until, 1)
+    }
+    return RuleSegment(habit: self, from: from, until: nil)
+  }
+}
+
 /// きょうの一覧に出すか（mobile/src/lib/stats.ts の isScheduledOn・todayStateOf と同じ考え方）
 enum ScheduleCheck {
   static func isDone(_ habit: WidgetSnapshot.Habit, _ e: Store.Entry?) -> Bool {
@@ -60,9 +93,12 @@ enum ScheduleCheck {
     return habit.kind == "check"
   }
 
-  static func listed(_ habit: WidgetSnapshot.Habit, on day: String, weekStart: Int, store: Store) -> Bool {
-    if day < habit.startDay { return false }
-    if let end = habit.endDay, day > end { return false }
+  static func listed(_ stored: WidgetSnapshot.Habit, on day: String, weekStart: Int, store: Store) -> Bool {
+    if day < stored.startDay { return false }
+    if let end = stored.endDay, day > end { return false }
+    // その日に使っている決まりで決める。週に何回は、その決まりを使い始めた日からの記録だけを数える
+    let segment = stored.segment(on: day)
+    let habit = segment.habit
     if habit.kind == "limit" { return true }
     let rule = habit.schedule
     let from: String
@@ -82,8 +118,10 @@ enum ScheduleCheck {
     case "weekdays":
       return rule.weekdayList.contains(DayMath.weekday(day))
     case "interval":
-      let d = DayMath.diff(habit.startDay, day)
-      return d >= 0 && d % max(rule.every ?? 2, 1) == 0
+      // 数え始める日から every 日ごと（その日より前も同じ間隔。mobile/src/lib/stats.ts の isScheduledOn と同じ）
+      let every = max(rule.every ?? 2, 1)
+      let d = DayMath.diff(rule.anchor ?? habit.startDay, day)
+      return ((d % every) + every) % every == 0
     case "monthlyWeekday":
       guard rule.weekdayList.contains(DayMath.weekday(day)) else { return false }
       let weeks = rule.weeks ?? []
@@ -102,7 +140,7 @@ enum ScheduleCheck {
       let times = rule.times ?? 1
       var done = 0
       var rest = 0
-      for (d, e) in entries where d < day && d >= habit.startDay {
+      for (d, e) in entries where d < day && d >= segment.from {
         if e.status == "rest" { rest += 1 } else if isDone(habit, e) { done += 1 }
       }
       // stats.ts の unitState と同じ：お休みで必要な回数が 0 以下なら、できた日があるときだけ届いたとみなす
@@ -114,10 +152,12 @@ enum ScheduleCheck {
     }
   }
 
-  /// 上限型の期間（日・週・月）の合計
-  static func periodTotal(_ habit: WidgetSnapshot.Habit, on day: String, weekStart: Int, store: Store) -> Double {
+  /// 上限型の期間（日・週・月）の合計。その日に使っている決まりの期間で、決まりを使い始めた日から数える
+  static func periodTotal(_ stored: WidgetSnapshot.Habit, on day: String, weekStart: Int, store: Store) -> Double {
+    let segment = stored.segment(on: day)
+    let habit = segment.habit
     var from = DayMath.periodStart(day, period: habit.limitPeriod, weekStart: weekStart)
-    if from < habit.startDay { from = habit.startDay }
+    if from < segment.from { from = segment.from }
     let total = store.entries(habitId: habit.id, from: from, to: day).values.filter { $0.status == "done" }.reduce(0) { $0 + $1.value }
     return (total * 100).rounded() / 100
   }

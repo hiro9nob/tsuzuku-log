@@ -26,6 +26,8 @@ export const habits = sqliteTable('habits', {
   archivedDay: text('archived_day'),
   /** JSON（お祝いを出した節目の数の配列） */
   celebrated: text('celebrated').notNull().default('[]'),
+  /** JSON（lib/habit.ts の HabitRule[]。目標や頻度を変える前の判定の決まり） */
+  rules: text('rules').notNull().default('[]'),
   createdAt: text('created_at').notNull(),
   updatedAt: text('updated_at').notNull(),
 });

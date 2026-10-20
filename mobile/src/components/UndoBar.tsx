@@ -3,21 +3,41 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { radius, spacing, useTheme } from '@/theme';
 
-/** 記録した直後に出す帯：「取り消す」と「ひとこと」 */
-export function UndoBar({ message, onUndo, onNote }: { message: string; onUndo: () => void; onNote: () => void }) {
+/**
+ * 記録した直後に出す帯：「取り消す」と「ひとこと」。
+ * 節目に届いたときは、同じ帯で控えめに祝い、「シェア」と「取り消す」を出す（画面は切り替えない）
+ */
+export function UndoBar({
+  message,
+  onUndo,
+  onNote,
+  onShare,
+}: {
+  message: string;
+  onUndo?: () => void;
+  onNote?: () => void;
+  onShare?: () => void;
+}) {
   const { t } = useTranslation();
   const theme = useTheme();
+  const celebrating = !!onShare;
+  const background = celebrating ? theme.accent : theme.text;
+  const foreground = celebrating ? theme.accentText : theme.background;
+  const actions = [
+    onShare ? { label: t('today.share'), onPress: onShare } : null,
+    onNote ? { label: t('today.note'), onPress: onNote } : null,
+    onUndo ? { label: t('today.undo'), onPress: onUndo } : null,
+  ].filter((a) => a !== null);
   return (
-    <View style={[styles.bar, { backgroundColor: theme.text }]} accessibilityLiveRegion="polite">
-      <Text style={[styles.message, { color: theme.background }]} numberOfLines={1}>
+    <View style={[styles.bar, { backgroundColor: background }]} accessibilityLiveRegion="polite">
+      <Text style={[styles.message, { color: foreground }]} numberOfLines={2}>
         {message}
       </Text>
-      <Pressable onPress={onNote} accessibilityRole="button" hitSlop={8} style={styles.action}>
-        <Text style={[styles.actionText, { color: theme.background }]}>{t('today.note')}</Text>
-      </Pressable>
-      <Pressable onPress={onUndo} accessibilityRole="button" hitSlop={8} style={styles.action}>
-        <Text style={[styles.actionText, { color: theme.background }]}>{t('today.undo')}</Text>
-      </Pressable>
+      {actions.map((a) => (
+        <Pressable key={a.label} onPress={a.onPress} accessibilityRole="button" hitSlop={8} style={styles.action}>
+          <Text style={[styles.actionText, { color: foreground }]}>{a.label}</Text>
+        </Pressable>
+      ))}
     </View>
   );
 }

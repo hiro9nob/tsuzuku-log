@@ -1,5 +1,8 @@
-import { StyleSheet, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Pressable, StyleSheet, View } from 'react-native';
 
+import type { Day } from '@/lib/day';
+import { formatDay } from '@/lib/format';
 import type { DayStatus } from '@/lib/stats';
 import { useTheme } from '@/theme';
 
@@ -36,6 +39,48 @@ export function DayDots({ statuses, color, size }: { statuses: DayStatus[]; colo
   );
 }
 
+/**
+ * 押して直せる点（きょうの一覧）。記録を忘れた日を、その場で直せるようにする。
+ * 点は小さいので、押せる場所は点のまわりまで広げ、読み上げでは日付と状態を伝える
+ */
+export function DayDotButtons({
+  days,
+  statuses,
+  color,
+  size,
+  onPress,
+}: {
+  days: Day[];
+  statuses: DayStatus[];
+  color: string;
+  size?: number;
+  onPress: (day: Day) => void;
+}) {
+  const { t } = useTranslation();
+  return (
+    <View style={styles.buttons}>
+      {days.map((day, i) => (
+        <Pressable
+          key={day}
+          onPress={() => onPress(day)}
+          hitSlop={{ top: 8, bottom: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={t('today.dayLabel', {
+            date: formatDay(day, { month: 'short', day: 'numeric', weekday: 'short' }),
+            status: t(`status.${statuses[i]}`),
+          })}
+          accessibilityHint={t('today.dayHint')}
+          style={({ pressed }) => [styles.cell, { opacity: pressed ? 0.5 : 1 }]}>
+          <Dot status={statuses[i]} color={color} size={size} />
+        </Pressable>
+      ))}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  // 点のまわり 22pt を押せる場所にする（上下は hitSlop で広げる）
+  buttons: { flexDirection: 'row', alignItems: 'center', marginLeft: -6 },
+  cell: { width: 22, height: 22, alignItems: 'center', justifyContent: 'center' },
 });

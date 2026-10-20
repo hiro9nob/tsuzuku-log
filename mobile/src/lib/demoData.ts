@@ -5,7 +5,7 @@ import { db } from '@/db/client';
 import { entries, habits, notes } from '@/db/schema';
 
 import { addDays, weekdayOf, type Day } from './day';
-import type { HabitColorId, HabitKind, LimitPeriod, Schedule } from './habit';
+import { milestoneKey, type HabitColorId, type HabitKind, type LimitPeriod, type Schedule } from './habit';
 import { listHabits, rowToHabit } from './habits';
 import { i18n } from './i18n';
 import { notifyDataChanged } from './revision';
@@ -200,7 +200,7 @@ export function seedDemoData(today: Day): void {
         .map((e) => [e.day, { day: e.day, status: e.status === 'rest' ? ('rest' as const) : ('done' as const), value: e.value }]),
     );
     const s = computeStreaks(h, map, today, 0);
-    const reached = MILESTONES[s.unit].filter((m) => m <= Math.max(s.longest, s.current));
+    const reached = MILESTONES[s.unit].filter((m) => m <= Math.max(s.longest, s.current)).map((m) => milestoneKey(s.unit, m));
     if (reached.length > 0) {
       db.update(habits)
         .set({ celebrated: JSON.stringify([...new Set([...h.celebrated, ...reached])]) })

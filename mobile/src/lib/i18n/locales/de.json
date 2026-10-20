@@ -59,7 +59,17 @@
     "openHint": "Zeigt Details",
     "rest": "Heute als Ruhetag",
     "unrest": "Ruhetag aufheben",
-    "reorder": "Sortieren"
+    "reorder": "Sortieren",
+    "menu": "Mehr zu {{name}}",
+    "fixYesterday": "Gestern korrigieren",
+    "editToday": "Heutiger Eintrag und Notiz",
+    "enterAmount": "Menge eingeben",
+    "decrease": "{{step}} abziehen",
+    "milestone": "{{name}}: {{streak}}!",
+    "share": "Teilen",
+    "rested": "{{name}} als Ruhetag eingetragen",
+    "dayLabel": "{{date}}, {{status}}",
+    "dayHint": "Eintrag für diesen Tag korrigieren"
   },
   "streak": {
     "day_one": "{{count}} Tag in Serie",
@@ -89,7 +99,9 @@
   },
   "period": {
     "perWeek": "Diese Woche {{done}} / {{times}}",
-    "perMonth": "Diesen Monat {{done}} / {{times}}"
+    "perMonth": "Diesen Monat {{done}} / {{times}}",
+    "perWeekRest": "Diese Woche {{done}} / {{times}} ({{rest}} Ruhetag)",
+    "perMonthRest": "Diesen Monat {{done}} / {{times}} ({{rest}} Ruhetag)"
   },
   "status": {
     "done": "Erledigt",
@@ -131,7 +143,10 @@
     "period": "Dauer",
     "limited": "Begrenzter Zeitraum",
     "endDay": "Endet am",
-    "limitedHint": "Lege ein Enddatum fest, etwa für eine 30-Tage-Challenge. Danach erscheint die Gewohnheit nicht mehr unter Heute, die Einträge bleiben im Rückblick."
+    "limitedHint": "Lege ein Enddatum fest, etwa für eine 30-Tage-Challenge. Danach erscheint die Gewohnheit nicht mehr unter Heute, die Einträge bleiben im Rückblick.",
+    "showDetails": "Weitere Optionen",
+    "detailsHint": "Symbol, Farbe, Zeitraum, Erinnerungen",
+    "suggestions": "Vorschlag wählen"
   },
   "kinds": {
     "check": "Erledigt",

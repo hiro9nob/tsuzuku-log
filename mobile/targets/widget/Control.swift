@@ -36,7 +36,8 @@ struct RecordControlProvider: AppIntentControlValueProvider {
     }
     let day = OngoDay.string(for: Date(), startHour: snapshot.dayStartHour)
     let e = Store.shared.entries(on: day)[id]
-    let done = ScheduleCheck.isDone(habit, e)
+    // チェック印は「できた」型だけ（数値型は押すと足すので、届いてもアイコンのまま）
+    let done = habit.kind == "check" && ScheduleCheck.isDone(habit, e)
     return RecordControlValue(habitId: id, name: habit.name, symbol: habit.symbol, done: done)
   }
 }

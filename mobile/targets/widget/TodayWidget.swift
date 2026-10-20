@@ -134,10 +134,13 @@ struct RecordCircle: View {
             .rotationEffect(.degrees(-90))
             .padding(diameter * 0.14)
         }
-        if item.done {
+        // チェック印は「できた」型だけ（押すと取り消す）。数値型は目標に届いても押すと足すので、アイコンのまま見せる
+        if item.done && item.habit.kind == "check" {
           Image(systemName: "checkmark")
             .font(.system(size: diameter * 0.42, weight: .bold))
             .foregroundStyle(scheme == .dark ? Color.black : Color.white)
+        } else if item.done {
+          HabitGlyph(habit: item.habit, size: diameter * 0.4, color: scheme == .dark ? Color.black : Color.white)
         } else {
           HabitGlyph(habit: item.habit, size: diameter * 0.4, color: color)
         }

@@ -59,15 +59,25 @@
     "openHint": "Shows details",
     "rest": "Make today a rest day",
     "unrest": "Cancel rest day",
-    "reorder": "Reorder"
+    "reorder": "Reorder",
+    "menu": "More for {{name}}",
+    "fixYesterday": "Fix yesterday’s record",
+    "editToday": "Today’s record and note",
+    "enterAmount": "Enter an amount",
+    "decrease": "Subtract {{step}}",
+    "milestone": "{{name}}: {{streak}}!",
+    "share": "Share",
+    "rested": "{{name}} set as a rest day",
+    "dayLabel": "{{date}}, {{status}}",
+    "dayHint": "Fix the record for this day"
   },
   "streak": {
-    "day_one": "{{count}}-day streak",
-    "day_other": "{{count}}-day streak",
-    "week_one": "{{count}}-week streak",
-    "week_other": "{{count}}-week streak",
-    "month_one": "{{count}}-month streak",
-    "month_other": "{{count}}-month streak"
+    "day_one": "{{count}}‑day streak",
+    "day_other": "{{count}}‑day streak",
+    "week_one": "{{count}}‑week streak",
+    "week_other": "{{count}}‑week streak",
+    "month_one": "{{count}}‑month streak",
+    "month_other": "{{count}}‑month streak"
   },
   "streakUnit": {
     "day_one": "day streak",
@@ -89,7 +99,9 @@
   },
   "period": {
     "perWeek": "This week {{done}} / {{times}}",
-    "perMonth": "This month {{done}} / {{times}}"
+    "perMonth": "This month {{done}} / {{times}}",
+    "perWeekRest": "This week {{done}} / {{times}} ({{rest}} rest)",
+    "perMonthRest": "This month {{done}} / {{times}} ({{rest}} rest)"
   },
   "status": {
     "done": "Done",
@@ -131,7 +143,10 @@
     "period": "Duration",
     "limited": "Limited period",
     "endDay": "Ends on",
-    "limitedHint": "Set an end date, like a 30-day challenge. When it ends, the habit leaves Today and its records stay in Review."
+    "limitedHint": "Set an end date, like a 30-day challenge. When it ends, the habit leaves Today and its records stay in Review.",
+    "showDetails": "More options",
+    "detailsHint": "Icon, color, period, reminders",
+    "suggestions": "Pick a suggestion"
   },
   "kinds": {
     "check": "Done",

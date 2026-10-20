@@ -8,7 +8,8 @@ import { db } from '@/db/client';
 import { entries, habits, notes, type EntryRow, type HabitRow, type NoteRow } from '@/db/schema';
 
 import { isValidDay } from './day';
-import { parseNumberList, toHabitColorId } from './habit';
+import { parseRules, toHabitColorId } from './habit';
+import { rowToHabit } from './habits';
 import { notifyDataChanged } from './revision';
 import { nowIso } from './time';
 
@@ -93,11 +94,14 @@ export function prepareJson(text: string): PreparedImport {
     apply: () => {
       db.transaction((tx) => {
         for (const h of hs) {
-          const row = { ...h, color: toHabitColorId(h.color) };
+          // 判定の決まりの履歴は、いまの設定と同じ時点のものにそろえる（履歴のない古いバックアップなら、履歴もなし）。
+          // 読めない日付などは捨てる
+          const row = { ...h, color: toHabitColorId(h.color), rules: JSON.stringify(parseRules(h.rules)) };
           const current = tx.select().from(habits).where(eq(habits.id, h.id)).get();
           if (current) {
             // お祝い済みの節目は合わせる（同じ節目で二度出さない）。始まりは早いほう
-            const celebrated = [...new Set([...parseNumberList(current.celebrated), ...parseNumberList(h.celebrated)])].sort((a, b) => a - b);
+            // 数だけの古い形は、それぞれの習慣のいまの連続の単位で読む（rowToHabit）
+            const celebrated = [...new Set([...rowToHabit(current).celebrated, ...rowToHabit({ ...current, ...row }).celebrated])];
             row.celebrated = JSON.stringify(celebrated);
             row.startDay = current.startDay < h.startDay ? current.startDay : h.startDay;
           }

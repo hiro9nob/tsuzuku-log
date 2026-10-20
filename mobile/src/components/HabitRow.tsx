@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
@@ -6,10 +7,10 @@ import type { HabitView } from '@/hooks/useHabits';
 import { addDays, type Day, type WeekStart } from '@/lib/day';
 import { formatValue } from '@/lib/format';
 import { useSettings, type TodayHistoryRange } from '@/lib/settings';
-import { dayStatus, doneInCurrentPeriod, periodTotal } from '@/lib/stats';
+import { dayStatus, periodProgress, periodTotal } from '@/lib/stats';
 import { radius, spacing, useTheme } from '@/theme';
 
-import { DayDots } from './DayDots';
+import { DayDotButtons } from './DayDots';
 import { HabitIcon } from './HabitIcon';
 import { MiniHeatmap } from './MiniHeatmap';
 import { RecordButton } from './RecordButton';
@@ -23,7 +24,12 @@ type Props = {
   weekStart: WeekStart;
   onTap: () => void;
   onOpen: () => void;
-  onLongPress?: () => void;
+  /** お休み・記録を直す・ひとことなどのメニュー（行の「…」と長押し） */
+  onMenu: () => void;
+  /** 記録の丸の長押し（数値・上限型：減らす、量を入れる） */
+  onLongPressRecord: () => void;
+  /** 直近の点を押したとき（その日の記録を直す） */
+  onPressDay: (day: Day) => void;
 };
 
 export function useStreakLabel() {
@@ -31,7 +37,7 @@ export function useStreakLabel() {
   return (count: number, unit: 'day' | 'week' | 'month') => t(`streak.${unit}`, { count });
 }
 
-export function HabitRow({ view, today, weekStart, onTap, onOpen, onLongPress }: Props) {
+export function HabitRow({ view, today, weekStart, onTap, onOpen, onMenu, onLongPressRecord, onPressDay }: Props) {
   const { t } = useTranslation();
   const theme = useTheme();
   const streakLabel = useStreakLabel();
@@ -40,7 +46,8 @@ export function HabitRow({ view, today, weekStart, onTap, onOpen, onLongPress }:
   const value = entry?.status === 'done' ? entry.value : 0;
   const range = useSettings((s) => s.todayHistory);
   const statusOf = useCallback((day: Day) => dayStatus(habit, entries, day, today, weekStart), [habit, entries, today, weekStart]);
-  const statuses = range === 'week' ? Array.from({ length: 7 }, (_, i) => statusOf(addDays(today, i - 6))) : [];
+  const days = range === 'week' ? Array.from({ length: 7 }, (_, i) => addDays(today, i - 6)) : [];
+  const statuses = days.map(statusOf);
   const isLimit = habit.kind === 'limit';
   const total = isLimit ? periodTotal(habit, entries, today, weekStart) : 0;
   const over = isLimit && total > habit.target;
@@ -49,7 +56,14 @@ export function HabitRow({ view, today, weekStart, onTap, onOpen, onLongPress }:
   if (habit.kind === 'count') detail = `${formatValue(habit, value)} / ${formatValue(habit, habit.target)}`;
   else if (isLimit) detail = t(`limit.${habit.limitPeriod}`, { value: formatValue(habit, total), max: formatValue(habit, habit.target) });
   else if (habit.schedule.type === 'perWeek' || habit.schedule.type === 'perMonth') {
-    detail = t(`period.${habit.schedule.type}`, { done: doneInCurrentPeriod(habit, entries, today, weekStart), times: habit.schedule.times });
+    // お休みの日は必要な回数から引く。引いたときは、そのことも見せる（「今週 2 / 2（お休み 1日）」）
+    const p = periodProgress(habit, entries, today, weekStart);
+    if (p) {
+      detail =
+        p.rest > 0
+          ? t(`period.${habit.schedule.type}Rest`, { done: p.done, times: p.needed, rest: p.rest })
+          : t(`period.${habit.schedule.type}`, { done: p.done, times: p.times });
+    }
   }
 
   const streakText = streaks.current > 0 ? streakLabel(streaks.current, streaks.unit) : null;
@@ -60,7 +74,7 @@ export function HabitRow({ view, today, weekStart, onTap, onOpen, onLongPress }:
       <View style={styles.top}>
         <Pressable
           onPress={onOpen}
-          onLongPress={onLongPress}
+          onLongPress={onMenu}
           style={({ pressed }) => [styles.main, { opacity: pressed ? 0.6 : 1 }]}
           accessibilityRole="button"
           accessibilityLabel={[habit.name, state === 'rest' ? t('today.resting') : null, streakText, detail].filter(Boolean).join(', ')}
@@ -78,8 +92,18 @@ export function HabitRow({ view, today, weekStart, onTap, onOpen, onLongPress }:
                 {[state === 'rest' ? t('today.resting') : null, detail, streakText].filter(Boolean).join(' · ')}
               </Text>
             ) : null}
-            {range === 'week' ? <DayDots statuses={statuses} color={theme.habit(habit.color)} size={10} /> : null}
+            {range === 'week' ? (
+              <DayDotButtons days={days} statuses={statuses} color={theme.habit(habit.color)} size={10} onPress={onPressDay} />
+            ) : null}
           </View>
+        </Pressable>
+        <Pressable
+          onPress={onMenu}
+          hitSlop={{ top: 8, bottom: 8 }}
+          accessibilityRole="button"
+          accessibilityLabel={t('today.menu', { name: habit.name })}
+          style={({ pressed }) => [styles.menu, { opacity: pressed ? 0.5 : 1 }]}>
+          <Ionicons name="ellipsis-horizontal" size={20} color={theme.textSecondary} />
         </Pressable>
         <RecordButton
           habit={habit}
@@ -97,10 +121,11 @@ export function HabitRow({ view, today, weekStart, onTap, onOpen, onLongPress }:
               : t('today.addLabel', { name: habit.name, step: formatValue(habit, habit.step) })
           }
           onPress={onTap}
+          onLongPress={onLongPressRecord}
         />
       </View>
       {range !== 'week' ? (
-        <Pressable onPress={onOpen} onLongPress={onLongPress} accessible={false}>
+        <Pressable onPress={onOpen} onLongPress={onMenu} accessible={false}>
           <MiniHeatmap
             weeks={HISTORY_WEEKS[range]}
             statusOf={statusOf}
@@ -123,10 +148,11 @@ const styles = StyleSheet.create({
     paddingLeft: spacing.m,
     paddingRight: spacing.m,
   },
-  top: { flexDirection: 'row', alignItems: 'center', gap: spacing.m },
+  top: { flexDirection: 'row', alignItems: 'center', gap: spacing.s },
   main: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.m },
   texts: { flex: 1, gap: 6 },
   nameRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   name: { flexShrink: 1, fontSize: 17, fontWeight: '700' },
   meta: { fontSize: 13 },
+  menu: { width: 32, height: 44, alignItems: 'center', justifyContent: 'center' },
 });

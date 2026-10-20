@@ -8,13 +8,12 @@ import { HabitIcon } from '@/components/HabitIcon';
 import { Illustration } from '@/components/Illustration';
 import { isValidDay } from '@/lib/day';
 import { formatDay, formatValue } from '@/lib/format';
-import { effectiveSchedule, isAmount, isDone } from '@/lib/habit';
-import { getEntry, getHabit, noteOf, setEntry, setNote } from '@/lib/habits';
-import { scheduleReschedule } from '@/lib/notifications';
-import { useIsPro } from '@/lib/pro';
-import { afterCompletion } from '@/lib/record';
+import { isAmount } from '@/lib/habit';
+import { getEntry, getHabit, noteOf, setNote } from '@/lib/habits';
+import { usePendingCelebration } from '@/lib/celebration';
+import { saveEntry } from '@/lib/record';
 import { useWeekStart } from '@/lib/settings';
-import { roundAmount } from '@/lib/stats';
+import { habitOn, roundAmount } from '@/lib/stats';
 import { useToday } from '@/hooks/useToday';
 import { radius, spacing, useTheme } from '@/theme';
 
@@ -29,30 +28,30 @@ export default function EntryScreen() {
   const { habitId, day, focus, devStatus } = useLocalSearchParams<{ habitId: string; day: string; focus?: string; devStatus?: string }>();
   const today = useToday();
   const weekStart = useWeekStart();
-  const isPro = useIsPro();
-  const [habit] = useState(() => getHabit(habitId));
+  const [stored] = useState(() => getHabit(habitId));
+  // 過去の日は、その日に使っていた決まり（記録のしかた・目標）で扱う（いまの種類で値を上書きしない）。
+  // 連続と節目は、決まりの履歴ごと持つ stored で数える
+  const habit = stored && isValidDay(day) ? habitOn(stored, day) : stored;
   const [initial] = useState(() => (isValidDay(day) ? getEntry(habitId, day) : null));
   const [status, setStatus] = useState<Status>(__DEV__ && devStatus === 'rest' ? 'rest' : (initial?.status ?? 'none'));
   const [valueText, setValueText] = useState(initial?.status === 'done' ? String(initial.value) : habit ? String(habit.kind === 'count' ? habit.target : habit.step) : '1');
   const [note, setNoteText] = useState(() => (isValidDay(day) ? (noteOf(habitId, day)?.text ?? '') : ''));
 
-  if (!habit || !isValidDay(day)) return null;
+  if (!stored || !habit || !isValidDay(day)) return null;
   const numeric = habit.kind !== 'check';
-  const value = Number(valueText.replace(',', '.'));
+  // 空欄は保存できない値にする（0 として扱わない）
+  const value = valueText.trim() === '' ? NaN : Number(valueText.replace(',', '.'));
   const valid = status !== 'done' || !numeric || isAmount(value);
 
   const save = () => {
     if (!valid) return;
     const next = status === 'none' ? null : status === 'rest' ? ({ status: 'rest', value: 0 } as const) : ({ status: 'done', value: numeric ? roundAmount(value) : 1 } as const);
-    setEntry(habitId, day, next);
+    // 連続がつながって節目に届いたら（過去の記録を直したときも）、この画面を閉じてから、きょうの画面の帯で祝う。
+    // 帯の「取り消す」で、記録を直す前に戻せる（メモはそのまま）
+    const { undo, milestone } = saveEntry(habitId, day, next, today, weekStart);
     setNote(habitId, day, note);
-    scheduleReschedule();
-    // きょうの記録でできたになったときは、きょうの画面で押したときと同じく、お祝いとレビューを確かめる
-    const effective = { ...habit, schedule: effectiveSchedule(habit.schedule, isPro) };
-    const nowDone = next !== null && isDone(effective, { ...next, day });
-    const milestone = day === today && nowDone && !isDone(effective, initial ?? undefined) ? afterCompletion(effective, today, weekStart) : null;
-    if (milestone !== null) router.replace({ pathname: '/share', params: { habitId, milestone: String(milestone) } });
-    else router.back();
+    if (milestone !== null) usePendingCelebration.getState().set({ habitId, milestone, undo });
+    router.back();
   };
 
   const adjust = (delta: number) => {

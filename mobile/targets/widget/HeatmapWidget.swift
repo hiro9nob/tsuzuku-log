@@ -55,15 +55,18 @@ enum HeatmapLoader {
       if let end = habit.endDay, day > end { return .outside }
       let e = entries[day]
       if e?.status == "rest" { return .rest }
-      if habit.kind == "limit" {
-        var start = DayMath.periodStart(day, period: habit.limitPeriod, weekStart: snapshot.weekStart)
-        if start < habit.startDay { start = habit.startDay }
+      // その日に使っていた決まりで見せる（mobile/src/lib/stats.ts の dayStatus と同じ）
+      let segment = habit.segment(on: day)
+      let h = segment.habit
+      if h.kind == "limit" {
+        let periodStart = DayMath.periodStart(day, period: h.limitPeriod, weekStart: snapshot.weekStart)
+        let start = periodStart < segment.from ? segment.from : periodStart
         let total = entries.filter { $0.key >= start && $0.key <= day && $0.value.status == "done" }.reduce(0) { $0 + $1.value.value }
-        if (total * 100).rounded() > (habit.target * 100).rounded() { return .over }
+        if (total * 100).rounded() > (h.target * 100).rounded() { return .over }
         return day == today ? .none : .done
       }
-      if ScheduleCheck.isDone(habit, e) { return .done }
-      if habit.kind == "count", e?.status == "done", (e?.value ?? 0) > 0 { return .partial }
+      if ScheduleCheck.isDone(h, e) { return .done }
+      if h.kind == "count", e?.status == "done", (e?.value ?? 0) > 0 { return .partial }
       return .none
     }
 

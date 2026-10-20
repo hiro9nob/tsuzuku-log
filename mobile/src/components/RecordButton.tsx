@@ -18,7 +18,10 @@ type Props = {
   onLongPress?: () => void;
 };
 
-/** 丸いボタン。1タップで記録する。できたらさりげなく弾む。大きさは習慣のアイコンとそろえ、押しやすさの目安の 44pt にする */
+/**
+ * 丸いボタン。1タップで記録する。できたらさりげなく弾む。大きさは習慣のアイコンとそろえ、押しやすさの目安の 44pt にする。
+ * 長押しで、数値・上限型は減らす・量を入れる
+ */
 export function RecordButton({ habit, value, done, over, rest, label, onPress, onLongPress }: Props) {
   const theme = useTheme();
   const color = theme.habit(habit.color);
@@ -58,7 +61,8 @@ export function RecordButton({ habit, value, done, over, rest, label, onPress, o
               transform: [{ scale }],
             },
           ]}>
-          {done && habit.kind !== 'limit' ? (
+          {/* 数値型は目標に届いても「+250」のまま（押すと足す。チェックの見た目で「取り消す」と迷わせない） */}
+          {done && habit.kind === 'check' ? (
             <Ionicons name="checkmark" size={24} color={theme.isDark ? '#121212' : '#FFFFFF'} />
           ) : habit.kind === 'check' ? null : (
             <Text

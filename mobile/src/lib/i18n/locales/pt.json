@@ -59,7 +59,17 @@
     "openHint": "Mostra os detalhes",
     "rest": "Hoje, dia de descanso",
     "unrest": "Cancelar dia de descanso",
-    "reorder": "Reordenar"
+    "reorder": "Reordenar",
+    "menu": "Mais opções de {{name}}",
+    "fixYesterday": "Corrigir o registro de ontem",
+    "editToday": "Registro e nota de hoje",
+    "enterAmount": "Inserir quantidade",
+    "decrease": "Subtrair {{step}}",
+    "milestone": "{{name}}: {{streak}}!",
+    "share": "Compartilhar",
+    "rested": "{{name}}: dia de descanso",
+    "dayLabel": "{{date}}, {{status}}",
+    "dayHint": "Corrigir o registro deste dia"
   },
   "streak": {
     "day_one": "Sequência de {{count}} dia",
@@ -95,7 +105,9 @@
   },
   "period": {
     "perWeek": "Esta semana {{done}} / {{times}}",
-    "perMonth": "Este mês {{done}} / {{times}}"
+    "perMonth": "Este mês {{done}} / {{times}}",
+    "perWeekRest": "Esta semana {{done}} / {{times}} ({{rest}} de descanso)",
+    "perMonthRest": "Este mês {{done}} / {{times}} ({{rest}} de descanso)"
   },
   "status": {
     "done": "Feito",
@@ -137,7 +149,10 @@
     "period": "Duração",
     "limited": "Período limitado",
     "endDay": "Termina em",
-    "limitedHint": "Defina uma data de término, como num desafio de 30 dias. Ao terminar, o hábito sai de Hoje e os registros continuam em Resumo."
+    "limitedHint": "Defina uma data de término, como num desafio de 30 dias. Ao terminar, o hábito sai de Hoje e os registros continuam em Resumo.",
+    "showDetails": "Mais opções",
+    "detailsHint": "Ícone, cor, período, lembretes",
+    "suggestions": "Escolha uma sugestão"
   },
   "kinds": {
     "check": "Feito",

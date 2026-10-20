@@ -8,6 +8,7 @@ import { useToday } from '@/hooks/useToday';
 import { archiveHabit, deleteHabit, getHabit, updateHabit, type HabitInput } from '@/lib/habits';
 import { cleanupIconImages } from '@/lib/iconImages';
 import { scheduleReschedule } from '@/lib/notifications';
+import { useWeekStart } from '@/lib/settings';
 import { radius, spacing, useTheme } from '@/theme';
 
 export default function EditHabitScreen() {
@@ -16,6 +17,7 @@ export default function EditHabitScreen() {
   const theme = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const today = useToday();
+  const weekStart = useWeekStart();
   const [input, setInput] = useState<HabitInput | null>(() => getHabit(id));
   const [archived] = useState(() => getHabit(id)?.archivedDay != null);
   if (!input) return null;
@@ -23,7 +25,7 @@ export default function EditHabitScreen() {
 
   const save = () => {
     if (!valid) return;
-    updateHabit(id, input);
+    updateHabit(id, input, today, weekStart);
     scheduleReschedule();
     cleanupIconImages();
     router.back();

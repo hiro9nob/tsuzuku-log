@@ -1,7 +1,7 @@
 // 習慣の型と、保存する値の読み書き
 // このファイルは React Native に依存させない（単体テストのため）
 
-import type { Day } from './day';
+import { isValidDay, type Day } from './day';
 
 /**
  * 習慣の種類
@@ -24,7 +24,8 @@ export type Schedule =
   | { type: 'daily' }
   | { type: 'weekdays'; days: number[] }
   | { type: 'perWeek'; times: number }
-  | { type: 'interval'; every: number }
+  /** anchor：数え始める日（この日から every 日ごと）。始まりの日とは別に持つ（過去の日を記録して始まりの日が早まっても、予定の日がずれないように） */
+  | { type: 'interval'; every: number; anchor?: Day }
   | { type: 'perMonth'; times: number }
   | { type: 'monthlyWeekday'; weeks: number[]; days: number[] }
   | { type: 'afterDone'; days: number };
@@ -69,11 +70,19 @@ export type Habit = {
   endDay: Day | null;
   /** アーカイブした日（null ならアーカイブしていない） */
   archivedDay: Day | null;
-  /** お祝いを出した節目 */
-  celebrated: number[];
+  /** お祝いを出した節目（'day:7' のように単位つき。milestoneKey） */
+  celebrated: string[];
+  /** 前の判定の決まり（古い順）。いまの決まりは kind・target・limitPeriod・schedule */
+  rules: HabitRule[];
   createdAt: string;
   updatedAt: string;
 };
+
+/**
+ * 判定の決まり。目標や頻度を変えたとき、前の決まりを until（この日まで使った）と一緒に残す。
+ * 終わった日や期間は、そのとき使っていた決まりで判定する（あとから変えても、過去の結果は変わらない）
+ */
+export type HabitRule = { until: Day; kind: HabitKind; target: number; limitPeriod: LimitPeriod; schedule: Schedule };
 
 /** その日の記録。status が 'rest' ならお休み。value は count / limit の値（check は 1） */
 export type Entry = { day: Day; status: 'done' | 'rest'; value: number };
@@ -152,8 +161,10 @@ export function parseSchedule(raw: string | null | undefined): Schedule {
       }
       case 'perWeek':
         return { type: 'perWeek', times: clampInt(v.times, 1, 7, 3) };
-      case 'interval':
-        return { type: 'interval', every: clampInt(v.every, 2, 30, 2) };
+      case 'interval': {
+        const every = clampInt(v.every, 2, 30, 2);
+        return isValidDay(v.anchor) ? { type: 'interval', every, anchor: v.anchor } : { type: 'interval', every };
+      }
       case 'perMonth':
         return { type: 'perMonth', times: clampInt(v.times, 1, 31, 4) };
       case 'monthlyWeekday': {
@@ -185,6 +196,37 @@ export function parseReminders(raw: string | null | undefined): Reminder[] {
   }
 }
 
+/** 何日おきで、数え始める日がなければ fallback（始まりの日）を入れる */
+export function withAnchor(schedule: Schedule, fallback: Day): Schedule {
+  return schedule.type === 'interval' && !schedule.anchor ? { ...schedule, anchor: fallback } : schedule;
+}
+
+/** 節目の単位（連続を数える単位と同じ） */
+export type MilestoneUnit = 'day' | 'week' | 'month';
+
+/** お祝いを出した節目の記録。単位ごとに分ける（12週と12か月を別の節目にする） */
+export function milestoneKey(unit: MilestoneUnit, n: number): string {
+  return `${unit}:${n}`;
+}
+
+const MILESTONE_KEY = /^(day|week|month):\d+$/;
+
+/** 保存された JSON からお祝いを出した節目を読む。数だけの古い形は fallback の単位で読む */
+export function parseCelebrated(raw: string | null | undefined, fallback: MilestoneUnit): string[] {
+  try {
+    const v: unknown = JSON.parse(raw ?? '');
+    if (!Array.isArray(v)) return [];
+    const keys = v.flatMap((x: unknown) => {
+      if (typeof x === 'string' && MILESTONE_KEY.test(x)) return [x];
+      if (typeof x === 'number' && Number.isInteger(x) && x > 0) return [milestoneKey(fallback, x)];
+      return [];
+    });
+    return [...new Set(keys)];
+  } catch {
+    return [];
+  }
+}
+
 export function parseNumberList(raw: string | null | undefined): number[] {
   try {
     const v: unknown = JSON.parse(raw ?? '');
@@ -200,13 +242,25 @@ export function effectiveReminders(reminders: Reminder[], isPro: boolean): Remin
   return reminders.slice(0, FREE_REMINDERS).map((r) => ({ time: r.time }));
 }
 
-/** Pro でないときに実際に使う繰り返し。Pro の繰り返しは近い無料の繰り返しに置き換える（設定は残す） */
-export function effectiveSchedule(schedule: Schedule, isPro: boolean): Schedule {
-  if (isPro || !isProSchedule(schedule)) return schedule;
-  if (schedule.type === 'perMonth') return { type: 'perWeek', times: Math.max(1, Math.min(7, Math.round(schedule.times / 4))) };
-  if (schedule.type === 'monthlyWeekday') return { type: 'weekdays', days: schedule.days };
-  if (schedule.type === 'afterDone') return { type: 'perWeek', times: Math.max(1, Math.min(7, Math.round(7 / schedule.days))) };
-  return { type: 'daily' };
+/** 保存された JSON から前の判定の決まりを読む。読めないものは捨て、古い順に並べる */
+export function parseRules(raw: string | null | undefined): HabitRule[] {
+  try {
+    const v: unknown = JSON.parse(raw ?? '');
+    if (!Array.isArray(v)) return [];
+    return v
+      .flatMap((r: unknown): HabitRule[] => {
+        if (typeof r !== 'object' || r === null) return [];
+        const { until, kind, target, limitPeriod, schedule } = r as Record<string, unknown>;
+        if (!isValidDay(until)) return [];
+        if (kind !== 'check' && kind !== 'count' && kind !== 'limit') return [];
+        if (typeof target !== 'number' || !Number.isFinite(target)) return [];
+        const period: LimitPeriod = limitPeriod === 'week' || limitPeriod === 'month' ? limitPeriod : 'day';
+        return [{ until, kind, target, limitPeriod: period, schedule: parseSchedule(JSON.stringify(schedule)) }];
+      })
+      .sort((a, b) => (a.until < b.until ? -1 : a.until > b.until ? 1 : 0));
+  } catch {
+    return [];
+  }
 }
 
 /** 値として使えるか（0.01 以上、小数第2位まで） */

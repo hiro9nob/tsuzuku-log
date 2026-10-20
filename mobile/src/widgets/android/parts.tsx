@@ -70,14 +70,15 @@ export function RecordCircle({
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-      {filled ? (
+      {/* チェック印は「できた」型だけ（押すと取り消す）。数値型は目標に届いても押すと足すので「+250」のまま（アプリと同じ） */}
+      {filled && habit.kind === 'check' ? (
         <IconWidget icon={glyph('checkmark')} font={ICON_FONT} size={size * 0.5} style={{ color: hex(palette.accentText) }} />
       ) : habit.kind === 'check' ? (
         <TextWidget text=" " style={{ fontSize: 4 }} />
       ) : (
         <TextWidget
           text={`+${formatAmount(habit.step, currentLocale())}`}
-          style={{ fontSize: size * 0.26, fontWeight: 'bold', color: hex(border) }}
+          style={{ fontSize: size * 0.26, fontWeight: 'bold', color: hex(filled ? palette.accentText : border) }}
           maxLines={1}
         />
       )}

@@ -7,12 +7,12 @@ import * as TaskManager from 'expo-task-manager';
 import { Platform } from 'react-native';
 
 import { addDays, dayOf, localDateAt, weekdayOf, type Day } from './day';
-import { effectiveReminders, effectiveSchedule, isDone, parseTime, type EntryMap, type Habit } from './habit';
+import { effectiveReminders, isDone, parseTime, type EntryMap, type Habit } from './habit';
 import { addToEntry, allEntries, getEntry, getHabit, listHabits, setEntry } from './habits';
 import { i18n } from './i18n';
 import { isProNow } from './pro';
 import { resolveWeekStart, useSettings } from './settings';
-import { evaluateUnits, hasEnded, isScheduledOn, todayStateOf } from './stats';
+import { evaluateUnits, habitOn, hasEnded, isScheduledOn, todayStateOf } from './stats';
 import { scheduleWidgetSync } from './widgetSync';
 
 /** 何日先まで予約するか */
@@ -66,11 +66,10 @@ async function ensureChannel() {
  * その日に、その習慣の通知を出すか。
  * 'due'：やる日でまだできていない。'log'：上限型（記録を忘れないためのお知らせ。まとめ通知の数には入れない）
  */
-function wantsReminder(habit: Habit, entries: EntryMap | undefined, day: Day, today: Day, isPro: boolean): 'due' | 'log' | null {
+function wantsReminder(h: Habit, entries: EntryMap | undefined, day: Day, today: Day): 'due' | 'log' | null {
   const map = entries ?? new Map();
   const entry = map.get(day);
   if (entry?.status === 'rest') return null;
-  const h = { ...habit, schedule: effectiveSchedule(habit.schedule, isPro), endDay: isPro ? habit.endDay : null };
   if (day < h.startDay || hasEnded(h, day)) return null;
   if (h.kind === 'limit') return entry ? null : 'log';
   if (isDone(h, entry)) return null;
@@ -136,8 +135,10 @@ async function markHandled(key: string): Promise<boolean> {
 /** 通知のボタンで記録する：「できた」は、できていなければできたにする（取り消しはしない）。数値・上限は1回分を足す */
 async function recordFromNotification(habitId: string, day: string, key: string): Promise<void> {
   if (!(await markHandled(key))) return;
-  const habit = getHabit(habitId);
-  if (!habit || habit.archivedDay) return;
+  const raw = getHabit(habitId);
+  if (!raw || raw.archivedDay) return;
+  // 前の日の通知なら、その日に使っていた決まりで記録する
+  const habit = habitOn(raw, day);
   if (habit.kind === 'check') {
     if (getEntry(habitId, day)?.status !== 'done') setEntry(habitId, day, { status: 'done', value: 1 });
   } else {
@@ -193,7 +194,7 @@ export function planNotifications(now: Date): Planned[] {
     const weekday = weekdayOf(day);
     let dueCount = 0;
     for (const habit of habits) {
-      const want = wantsReminder(habit, entries.get(habit.id), day, today, isPro);
+      const want = wantsReminder(habit, entries.get(habit.id), day, today);
       if (!want) continue;
       if (want === 'due') dueCount += 1;
       for (const [n, r] of effectiveReminders(habit.reminders, isPro).entries()) {

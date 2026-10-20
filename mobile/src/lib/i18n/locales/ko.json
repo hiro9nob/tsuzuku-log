@@ -59,7 +59,17 @@
     "openHint": "자세히 보기",
     "rest": "오늘은 쉬는 날로 하기",
     "unrest": "쉬는 날 취소",
-    "reorder": "순서 바꾸기"
+    "reorder": "순서 바꾸기",
+    "menu": "{{name}} 더 보기",
+    "fixYesterday": "어제 기록 고치기",
+    "editToday": "오늘 기록과 메모",
+    "enterAmount": "양 입력하기",
+    "decrease": "{{step}} 줄이기",
+    "milestone": "{{name}} {{streak}} 달성!",
+    "share": "공유",
+    "rested": "{{name}}을(를) 쉬는 날로 했어요",
+    "dayLabel": "{{date}}, {{status}}",
+    "dayHint": "이 날의 기록 고치기"
   },
   "streak": {
     "day_other": "{{count}}일 연속",
@@ -83,7 +93,9 @@
   },
   "period": {
     "perWeek": "이번 주 {{done}} / {{times}}",
-    "perMonth": "이번 달 {{done}} / {{times}}"
+    "perMonth": "이번 달 {{done}} / {{times}}",
+    "perWeekRest": "이번 주 {{done}} / {{times}} (쉬는 날 {{rest}}일)",
+    "perMonthRest": "이번 달 {{done}} / {{times}} (쉬는 날 {{rest}}일)"
   },
   "status": {
     "done": "완료",
@@ -125,7 +137,10 @@
     "period": "기간",
     "limited": "기간 한정",
     "endDay": "종료일",
-    "limitedHint": "30일 챌린지처럼 끝나는 날을 정할 수 있어요. 끝난 습관은 오늘에 나오지 않고, 기록은 돌아보기에 남아요."
+    "limitedHint": "30일 챌린지처럼 끝나는 날을 정할 수 있어요. 끝난 습관은 오늘에 나오지 않고, 기록은 돌아보기에 남아요.",
+    "showDetails": "자세히 설정",
+    "detailsHint": "아이콘, 색, 기간, 알림",
+    "suggestions": "추천에서 고르기"
   },
   "kinds": {
     "check": "완료",
