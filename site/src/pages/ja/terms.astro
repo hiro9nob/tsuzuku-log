@@ -1,0 +1,12 @@
+---
+import Legal from '../../components/Legal.astro';
+import { Content } from '../../content/ja/terms.md';
+import { ui } from '../../i18n/ui';
+import Base from '../../layouts/Base.astro';
+
+const title = ui.ja.nav.terms;
+---
+
+<Base lang="ja" title={title} path="terms">
+  <Legal lang="ja" title={title}><Content /></Legal>
+</Base>

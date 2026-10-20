@@ -4,7 +4,8 @@
     "NSPhotoLibraryUsageDescription": "選んだ写真を、習慣のアイコンに使います。写真はこの端末の中だけに置きます。",
     "NSCameraUsageDescription": "つづくログはカメラを使いません。アプリに含まれる部品のために必要な表示です。",
     "NSMicrophoneUsageDescription": "つづくログはマイクを使いません。アプリに含まれる部品のために必要な表示です。",
-    "NSFaceIDUsageDescription": "アプリのロックをオンにしたときに、Face ID でロックを解除します。"
+    "NSFaceIDUsageDescription": "アプリのロックをオンにしたときに、Face ID でロックを解除します。",
+    "NSMotionUsageDescription": "つづくログはモーションのデータを使いません。アプリに含まれる部品のために必要な表示です。"
   },
   "android": {
     "app_name": "つづくログ (Dev)",

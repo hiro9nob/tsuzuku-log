@@ -15,13 +15,15 @@ const variants = {
     name: 'Ongo (Dev)',
     jaLocale: './locales/ja.dev.json',
     bundleId: 'com.horizon.ongo.dev',
-    revenueCatApiKey: { ios: null, android: null },
+    // RevenueCat の Test Store の公開キー（買ってもお金はかからない。docs/revenuecat-setup.md「開発版で購入を試す」）
+    revenueCatApiKey: { ios: 'test_FSKOCebRLNBYLmsmlGfDDejDkuJ', android: 'test_FSKOCebRLNBYLmsmlGfDDejDkuJ' },
   },
   production: {
     name: 'Ongo',
     jaLocale: './locales/ja.json',
     bundleId: 'com.horizon.ongo',
-    revenueCatApiKey: { ios: null, android: null },
+    // RevenueCat の App Store の公開キー（Android は Play Console にアプリを作ってから）
+    revenueCatApiKey: { ios: 'appl_RFzrEAiCCWyaGiVLRefwwDLQwkE', android: null },
   },
 } as const satisfies Record<Variant, { name: string; jaLocale: string; bundleId: string; revenueCatApiKey: { ios: string | null; android: string | null } }>;
 
@@ -106,6 +108,9 @@ const config: ExpoConfig = {
     infoPlist: {
       // 日本語の端末では、アプリの名前を「つづくログ」にする（locales）
       CFBundleAllowMixedLocalizations: true,
+      // モーションは使わない。react-native-reanimated（useAnimatedSensor）が CMMotionManager を参照するため、
+      // アップロードで ITMS-90683 にならないよう念のため入れる。アプリから許可を求めないので、利用者には出ない
+      NSMotionUsageDescription: 'Ongo does not use motion data. This text is required by a component the app includes.',
       // ファイル App の iCloud Drive に「Ongo」のフォルダとして見せる
       NSUbiquitousContainers: {
         [iCloudContainer]: {
@@ -188,6 +193,8 @@ const config: ExpoConfig = {
     variant,
     appGroup,
     revenueCatApiKey: v.revenueCatApiKey,
+    // EAS のプロジェクト（@horizon-systems/ongo。2026-10-20 に作成）。動的な設定には eas init が書けないので手で書く
+    eas: { projectId: '0de3ce33-a1a4-4b48-a254-cdea53b4d7c5' },
   },
 };
 

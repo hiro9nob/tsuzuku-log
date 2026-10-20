@@ -1,0 +1,248 @@
+---
+import { OPERATOR } from '../config';
+import { LANGS, localePath, ui, type Lang } from '../i18n/ui';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  /** 言語の切り替えで、同じページの別の言語に移るためのパス（例：'terms'） */
+  path?: string;
+  description?: string;
+  /** トップページだけ、アプリの構造化データ（JSON-LD）を入れる */
+  home?: boolean;
+  /** 検索結果に出さない（404） */
+  noindex?: boolean;
+}
+
+const { lang, title, path = '', description, home = false, noindex = false } = Astro.props;
+const t = ui[lang];
+const pageTitle = title ? `${title} | ${t.appName}` : `${t.appName} — ${t.hero.tagline}`;
+const desc = description ?? (path in t.pageDescriptions ? t.pageDescriptions[path as keyof typeof t.pageDescriptions] : t.siteDescription);
+const canonical = new URL(localePath(lang, path), Astro.site);
+const ogImage = new URL(`/og-${lang}.png`, Astro.site);
+// 検索結果にアプリとして出るように（schema.org の MobileApplication）
+const appJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'MobileApplication',
+  name: t.appName,
+  description: t.siteDescription,
+  url: new URL(localePath(lang), Astro.site).toString(),
+  image: new URL('/icon.png', Astro.site).toString(),
+  operatingSystem: 'iOS',
+  applicationCategory: 'HealthApplication',
+  inLanguage: lang,
+  offers: { '@type': 'Offer', price: '0', priceCurrency: lang === 'ja' ? 'JPY' : 'USD' },
+};
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={desc} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    {noindex ? null : LANGS.map((l) => <link rel="alternate" hreflang={l} href={new URL(localePath(l, path), Astro.site)} />)}
+    {noindex ? null : <link rel="alternate" hreflang="x-default" href={new URL(localePath('en', path), Astro.site)} />}
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#F7F5EF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121512" media="(prefers-color-scheme: dark)" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={t.ogAlt} />
+    <meta name="twitter:image:alt" content={t.ogAlt} />
+    <meta property="og:site_name" content={t.appName} />
+    <meta property="og:locale" content={lang === 'ja' ? 'ja_JP' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href={lang === 'ja'
+        ? 'https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&display=swap'
+        : 'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&display=swap'}
+    />
+    {home ? <script type="application/ld+json" set:html={JSON.stringify(appJsonLd)} /> : null}
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href={localePath(lang)}>
+        <img src="/icon.png" alt="" width="32" height="32" />
+        <span>{t.appName}</span>
+      </a>
+      <div class="header-nav">
+        <a href={localePath(lang, 'support')}>{t.nav.support}</a>
+        <nav aria-label={t.footer.language} class="lang">
+          {LANGS.map((l) => (l === lang ? <span aria-current="true">{ui[l].langName}</span> : <a href={localePath(l, path)} hreflang={l} lang={l}>{ui[l].langName}</a>))}
+        </nav>
+      </div>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <nav>
+        <a href={localePath(lang, 'support')}>{t.nav.support}</a>
+        <a href={localePath(lang, 'terms')}>{t.nav.terms}</a>
+        <a href={localePath(lang, 'privacy')}>{t.nav.privacy}</a>
+      </nav>
+      <p>© {new Date().getFullYear()} {OPERATOR[lang]}</p>
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  /* アプリの代表の緑（ライト #4A7C59、ダーク #8DBF9C。docs/tsuzuku-log-concept.md「UI/UXの原則」）と、生成りの紙の色 */
+  :root {
+    --paper: #f7f5ef;
+    --surface: #fffdf8;
+    --ink: #1d231f;
+    --ink-2: #5b645e;
+    --line: #e2ddd0;
+    --green: #4a7c59;
+    --green-soft: #e3ece4;
+    --serif: 'Fraunces', 'Zen Maru Gothic', Georgia, serif;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #121512;
+      --surface: #1a1e1a;
+      --ink: #e9e7df;
+      --ink-2: #a5aba4;
+      --line: #2d332d;
+      --green: #8dbf9c;
+      --green-soft: #223025;
+    }
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Noto Sans JP',
+      'Segoe UI', sans-serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-wrap: anywhere;
+  }
+  a {
+    color: var(--green);
+    text-underline-offset: 3px;
+  }
+  main {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+  .site-header {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid var(--line);
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 19px;
+  }
+  .brand img {
+    border-radius: 8px;
+  }
+  .header-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: 14px;
+  }
+  .header-nav > a {
+    color: var(--ink);
+  }
+  .lang {
+    display: flex;
+    gap: 12px;
+  }
+  .lang span {
+    color: var(--ink-2);
+  }
+  .site-footer {
+    max-width: 1040px;
+    margin: 0 auto;
+    border-top: 1px solid var(--line);
+    padding: 28px 24px 48px;
+    color: var(--ink-2);
+    font-size: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px 24px;
+  }
+  .site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+  }
+  .site-footer p {
+    margin: 0;
+  }
+  .site-footer a {
+    color: var(--ink-2);
+  }
+  .narrow {
+    max-width: 720px;
+    margin: 0 auto;
+    padding-top: 32px;
+  }
+  .narrow h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(32px, 5vw, 44px);
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 24px;
+  }
+  h1,
+  h2,
+  h3 {
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+  @media (max-width: 760px) {
+    main {
+      padding: 0 16px 72px;
+    }
+    .site-header,
+    .site-footer {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+</style>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ongo.no9.app/sitemap-index.xml

@@ -16,7 +16,11 @@ const revenueCatApiKey = Constants.expoConfig?.extra?.revenueCatApiKey as
   | { ios?: unknown; android?: unknown }
   | undefined;
 const platformKey = Platform.select({ ios: revenueCatApiKey?.ios, android: revenueCatApiKey?.android });
-const API_KEY = typeof platformKey === 'string' && platformKey !== '' ? platformKey : undefined;
+// Test Store のキー（test_）は開発版（Debug）だけで使う。RevenueCat の SDK は、Release 構成で Test Store のキーを渡すと
+// わざとアプリを止める（Test Store のまま公開しないための安全装置）。Release 構成の dev 版（pnpm ios:device:release）では、
+// 課金を使えない状態として起動する。Release で購入を試すのは、本番の Bundle ID と App Store の Sandbox で（docs/revenuecat-setup.md）
+const usableKey = typeof platformKey === 'string' && platformKey !== '' && !(platformKey.startsWith('test_') && !__DEV__);
+const API_KEY = usableKey ? platformKey : undefined;
 
 export type PurchaseResult = 'purchased' | 'pending' | 'cancelled' | 'failed';
 export type RestoreResult = 'restored' | 'nothing' | 'failed';

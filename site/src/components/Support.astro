@@ -1,0 +1,53 @@
+---
+import { CONTACT_EMAIL } from '../config';
+import { ui, type Lang } from '../i18n/ui';
+
+const { lang } = Astro.props as { lang: Lang };
+const t = ui[lang].support;
+---
+<div class="narrow">
+
+<h1>{t.title}</h1>
+<p>{t.lead}</p>
+
+<div class="faq">
+  {
+    t.faq.map((item) => (
+      <details class="card">
+        <summary>{item.q}</summary>
+        <p>{item.a}</p>
+      </details>
+    ))
+  }
+</div>
+
+<h2>{t.contactTitle}</h2>
+<p>{t.contactBody}</p>
+<ul>
+  {t.contactItems.map((item) => <li>{item}</li>)}
+</ul>
+<p>{t.contactNote}</p>
+<p class="mail"><a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
+</div>
+
+<style>
+  .faq {
+    display: grid;
+    gap: 12px;
+  }
+  details {
+    padding: 16px 24px;
+  }
+  summary {
+    cursor: pointer;
+    font-weight: 700;
+  }
+  details p {
+    margin: 12px 0 0;
+    color: var(--ink-2);
+  }
+  .mail {
+    font-size: 18px;
+    font-weight: 700;
+  }
+</style>

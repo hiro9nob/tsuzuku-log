@@ -116,3 +116,12 @@ export function rc(path, opt) {
   const key = env('REVENUECAT_SECRET_API_KEY');
   return request(`https://api.revenuecat.com/v2/projects/${project}${path}`, () => ({ Authorization: `Bearer ${key}` }), opt);
 }
+
+/** 編集できる（まだ審査に出していない）iOS のバージョン。1個のときだけ返す */
+export async function editableVersion() {
+  const versions = await ascAll(
+    `/v1/apps/${ascAppId()}/appStoreVersions?filter[platform]=IOS&filter[appStoreState]=PREPARE_FOR_SUBMISSION,DEVELOPER_REJECTED,REJECTED,METADATA_REJECTED&limit=50`,
+  );
+  if (versions.length !== 1) throw new Error(`編集できる iOS のバージョンが ${versions.length} 個ある（1個のときだけ扱う）`);
+  return versions[0];
+}
