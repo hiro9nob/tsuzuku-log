@@ -308,8 +308,8 @@
     "languageSystem": "Usar ajuste del dispositivo",
     "data": "Datos",
     "exportJson": "Exportar (JSON)",
-    "exportCsv": "Exportar (CSV)",
-    "import": "Importar (JSON de Ongo, CSV de otras apps)",
+    "import": "Importar (JSON de Ongo)",
+    "importOther": "Pasar desde otra app",
     "storageNote": "Tus registros se quedan en este dispositivo y nunca se envían a ningún sitio. Las exportaciones incluyen tus notas.",
     "pro": "Pro",
     "proActive": "Activo",
@@ -334,7 +334,7 @@
   },
   "import": {
     "invalid": "No se pudo leer este archivo",
-    "formatHint": "Se admiten archivos JSON de Ongo y archivos CSV con una columna de fecha.",
+    "formatHint": "Se admiten archivos JSON exportados desde Ongo.",
     "confirmTitle": "¿Importar?",
     "habits_one": "Hábitos nuevos: {{count}}",
     "habits_other": "Hábitos nuevos: {{count}}",
@@ -349,6 +349,13 @@
     "run": "Importar",
     "done": "Importado",
     "failed": "No se pudo importar. Tus registros no han cambiado."
+  },
+  "importOther": {
+    "title": "La importación desde otras apps llegará pronto",
+    "body": "Envíanos por correo el nombre de la app desde la que quieres importar y un archivo exportado desde ella. Nos ayudará a añadir compatibilidad.",
+    "mail": "Enviar correo",
+    "subject": "Importar desde otra app",
+    "mailBody": "App desde la que quiero importar:\n\n(Adjunta un archivo exportado desde esa app)"
   },
   "notifications": {
     "channel": "Recordatorios de hábitos",

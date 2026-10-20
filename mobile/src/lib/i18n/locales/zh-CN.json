@@ -286,8 +286,8 @@
     "languageSystem": "跟随设备设置",
     "data": "数据",
     "exportJson": "导出（JSON）",
-    "exportCsv": "导出（CSV）",
-    "import": "导入（Ongo JSON、其他应用的 CSV）",
+    "import": "导入（Ongo 的 JSON）",
+    "importOther": "从其他应用迁移",
     "storageNote": "你的记录只保存在这台设备上，不会发送到任何地方。导出内容包含备注。",
     "pro": "Pro",
     "proActive": "已启用",
@@ -312,7 +312,7 @@
   },
   "import": {
     "invalid": "无法读取此文件",
-    "formatHint": "支持 Ongo 的 JSON 文件和带日期列的 CSV 文件。",
+    "formatHint": "支持从 Ongo 导出的 JSON 文件。",
     "confirmTitle": "要导入吗？",
     "habits_other": "新习惯：{{count}}",
     "records_other": "记录：{{count}}",
@@ -321,6 +321,13 @@
     "run": "导入",
     "done": "已导入",
     "failed": "无法导入。你的记录没有变化。"
+  },
+  "importOther": {
+    "title": "从其他应用导入的功能即将推出",
+    "body": "请通过邮件告诉我们想要导入的应用名称，并附上从该应用导出的文件。这将帮助我们添加支持。",
+    "mail": "发送邮件",
+    "subject": "从其他应用导入",
+    "mailBody": "想要导入的应用：\n\n（请附上从该应用导出的文件）"
   },
   "notifications": {
     "channel": "习惯提醒",

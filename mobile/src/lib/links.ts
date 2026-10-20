@@ -10,3 +10,10 @@ export const STORE_NAME = Platform.OS === 'android' ? 'Google Play' : 'App Store
 export function legalUrl(page: 'terms' | 'privacy' | 'support', language: string) {
   return `${SITE}${language.startsWith('ja') ? '/ja' : ''}/${page}/`;
 }
+
+// 問い合わせのメール。アドレスは仮（docs/development.md「まだ決めていないこと」）
+const CONTACT_EMAIL = 'contact@no9.app';
+
+export function mailUrl(subject: string, body: string) {
+  return `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}

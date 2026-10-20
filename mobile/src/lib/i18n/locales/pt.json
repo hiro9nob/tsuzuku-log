@@ -308,8 +308,8 @@
     "languageSystem": "Usar ajuste do aparelho",
     "data": "Dados",
     "exportJson": "Exportar (JSON)",
-    "exportCsv": "Exportar (CSV)",
-    "import": "Importar (JSON do Ongo, CSV de outros apps)",
+    "import": "Importar (JSON do Ongo)",
+    "importOther": "Trazer de outro app",
     "storageNote": "Seus registros ficam neste aparelho e nunca são enviados a lugar nenhum. As exportações incluem suas notas.",
     "pro": "Pro",
     "proActive": "Ativo",
@@ -334,7 +334,7 @@
   },
   "import": {
     "invalid": "Não foi possível ler este arquivo",
-    "formatHint": "São aceitos arquivos JSON do Ongo e arquivos CSV com uma coluna de data.",
+    "formatHint": "São aceitos arquivos JSON exportados do Ongo.",
     "confirmTitle": "Importar?",
     "habits_one": "Novos hábitos: {{count}}",
     "habits_other": "Novos hábitos: {{count}}",
@@ -349,6 +349,13 @@
     "run": "Importar",
     "done": "Importado",
     "failed": "Não foi possível importar. Seus registros não mudaram."
+  },
+  "importOther": {
+    "title": "A importação de outros apps chegará em breve",
+    "body": "Envie por e-mail o nome do app do qual você quer importar e um arquivo exportado dele. Isso nos ajuda a adicionar o suporte.",
+    "mail": "Enviar e-mail",
+    "subject": "Importar de outro app",
+    "mailBody": "App do qual quero importar:\n\n(Anexe um arquivo exportado desse app)"
   },
   "notifications": {
     "channel": "Lembretes de hábitos",

@@ -308,8 +308,8 @@
     "languageSystem": "Réglage de l’appareil",
     "data": "Données",
     "exportJson": "Exporter (JSON)",
-    "exportCsv": "Exporter (CSV)",
-    "import": "Importer (JSON Ongo, CSV d’autres apps)",
+    "import": "Importer (JSON Ongo)",
+    "importOther": "Passer depuis une autre app",
     "storageNote": "Vos données restent sur cet appareil et ne sont jamais envoyées. Les exports incluent vos notes.",
     "pro": "Pro",
     "proActive": "Actif",
@@ -334,7 +334,7 @@
   },
   "import": {
     "invalid": "Impossible de lire ce fichier",
-    "formatHint": "Les fichiers JSON Ongo et CSV avec une colonne de date sont pris en charge.",
+    "formatHint": "Les fichiers JSON exportés depuis Ongo sont pris en charge.",
     "confirmTitle": "Importer ?",
     "habits_one": "Nouvelles habitudes : {{count}}",
     "habits_other": "Nouvelles habitudes : {{count}}",
@@ -349,6 +349,13 @@
     "run": "Importer",
     "done": "Importé",
     "failed": "Import impossible. Vos données n’ont pas changé."
+  },
+  "importOther": {
+    "title": "L’import depuis d’autres apps arrive bientôt",
+    "body": "Envoyez-nous par e-mail le nom de l’app depuis laquelle vous souhaitez importer, avec un fichier exporté depuis celle-ci. Cela nous aidera à la prendre en charge.",
+    "mail": "Envoyer un e-mail",
+    "subject": "Import depuis une autre app",
+    "mailBody": "App depuis laquelle importer :\n\n(Joignez un fichier exporté depuis cette app)"
   },
   "notifications": {
     "channel": "Rappels d’habitudes",

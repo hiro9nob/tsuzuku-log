@@ -286,8 +286,8 @@
     "languageSystem": "기기 설정 따르기",
     "data": "데이터",
     "exportJson": "내보내기 (JSON)",
-    "exportCsv": "내보내기 (CSV)",
-    "import": "가져오기 (Ongo JSON, 다른 앱의 CSV)",
+    "import": "가져오기 (Ongo JSON)",
+    "importOther": "다른 앱에서 옮기기",
     "storageNote": "기록은 이 기기에만 저장되며 어디에도 전송되지 않아요. 내보내기에는 메모도 포함돼요.",
     "pro": "Pro",
     "proActive": "사용 중",
@@ -312,7 +312,7 @@
   },
   "import": {
     "invalid": "이 파일을 읽을 수 없어요",
-    "formatHint": "Ongo JSON 파일과 날짜 열이 있는 CSV 파일을 지원해요.",
+    "formatHint": "Ongo에서 내보낸 JSON 파일을 지원해요.",
     "confirmTitle": "가져올까요?",
     "habits_other": "새 습관: {{count}}개",
     "records_other": "기록: {{count}}개",
@@ -321,6 +321,13 @@
     "run": "가져오기",
     "done": "가져왔어요",
     "failed": "가져오지 못했어요. 기록은 바뀌지 않았어요."
+  },
+  "importOther": {
+    "title": "다른 앱에서 가져오기는 준비 중이에요",
+    "body": "가져오고 싶은 앱의 이름과 그 앱에서 내보낸 파일을 이메일로 보내 주세요. 지원을 준비할 때 참고할게요.",
+    "mail": "이메일 보내기",
+    "subject": "다른 앱에서 가져오기",
+    "mailBody": "가져오고 싶은 앱:\n\n(그 앱에서 내보낸 파일을 첨부해 주세요)"
   },
   "notifications": {
     "channel": "습관 알림",

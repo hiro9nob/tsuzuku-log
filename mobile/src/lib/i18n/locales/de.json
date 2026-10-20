@@ -297,8 +297,8 @@
     "languageSystem": "Wie Gerät",
     "data": "Daten",
     "exportJson": "Export (JSON)",
-    "exportCsv": "Export (CSV)",
-    "import": "Import (Ongo-JSON, CSV anderer Apps)",
+    "import": "Importieren (Ongo-JSON)",
+    "importOther": "Von einer anderen App umziehen",
     "storageNote": "Deine Einträge bleiben auf diesem Gerät und werden nirgendwohin gesendet. Exporte enthalten deine Notizen.",
     "pro": "Pro",
     "proActive": "Aktiv",
@@ -323,7 +323,7 @@
   },
   "import": {
     "invalid": "Datei konnte nicht gelesen werden",
-    "formatHint": "Unterstützt werden Ongo-JSON-Dateien und CSV-Dateien mit Datumsspalte.",
+    "formatHint": "Unterstützt werden JSON-Dateien, die aus Ongo exportiert wurden.",
     "confirmTitle": "Importieren?",
     "habits_one": "Neue Gewohnheiten: {{count}}",
     "habits_other": "Neue Gewohnheiten: {{count}}",
@@ -335,6 +335,13 @@
     "run": "Importieren",
     "done": "Importiert",
     "failed": "Import fehlgeschlagen. Deine Einträge sind unverändert."
+  },
+  "importOther": {
+    "title": "Import aus anderen Apps folgt bald",
+    "body": "Schick uns bitte per E-Mail den Namen der App, aus der du importieren möchtest, und eine daraus exportierte Datei. Das hilft uns bei der Umsetzung.",
+    "mail": "E-Mail senden",
+    "subject": "Import aus einer anderen App",
+    "mailBody": "App, aus der ich importieren möchte:\n\n(Bitte eine aus dieser App exportierte Datei anhängen)"
   },
   "notifications": {
     "channel": "Erinnerungen",

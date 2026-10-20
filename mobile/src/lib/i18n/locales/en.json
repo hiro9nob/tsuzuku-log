@@ -297,8 +297,8 @@
     "languageSystem": "Use device setting",
     "data": "Data",
     "exportJson": "Export (JSON)",
-    "exportCsv": "Export (CSV)",
-    "import": "Import (Ongo JSON, other apps' CSV)",
+    "import": "Import (Ongo JSON)",
+    "importOther": "Move from another app",
     "storageNote": "Your records stay on this device and are never sent anywhere. Exports include your notes.",
     "pro": "Pro",
     "proActive": "Active",
@@ -323,7 +323,7 @@
   },
   "import": {
     "invalid": "Couldn't read this file",
-    "formatHint": "Ongo JSON files and CSV files with a date column are supported.",
+    "formatHint": "JSON files exported from Ongo are supported.",
     "confirmTitle": "Import?",
     "habits_one": "New habits: {{count}}",
     "habits_other": "New habits: {{count}}",
@@ -335,6 +335,13 @@
     "run": "Import",
     "done": "Imported",
     "failed": "Couldn't import. Your records haven't changed."
+  },
+  "importOther": {
+    "title": "Importing from other apps is coming soon",
+    "body": "Please email us the name of the app you want to import from, along with a file exported from it. It will help us add support.",
+    "mail": "Send Email",
+    "subject": "Import from another app",
+    "mailBody": "App to import from:\n\n(Please attach a file exported from that app)"
   },
   "notifications": {
     "channel": "Habit reminders",

@@ -7,11 +7,11 @@ import { NotificationCard } from '@/components/NotificationCard';
 import { SettingsCustomRow, SettingsRow, SettingsSection, SettingsSwitchRow } from '@/components/SettingsRow';
 import { TimeField } from '@/components/TimeField';
 import { authenticate, lockAvailable } from '@/lib/appLock';
-import { exportCsv, exportJson, pickImport } from '@/lib/backup';
+import { exportJson, pickImport } from '@/lib/backup';
 import { currentLocale } from '@/lib/i18n';
 import { backupToICloud, iCloudAvailable, iCloudSupported } from '@/lib/icloud';
 import { LANGUAGES } from '@/lib/i18n/languages';
-import { legalUrl } from '@/lib/links';
+import { legalUrl, mailUrl } from '@/lib/links';
 import { scheduleReschedule } from '@/lib/notifications';
 import { useIsPro } from '@/lib/pro';
 import { useSettings } from '@/lib/settings';
@@ -25,9 +25,9 @@ export default function SettingsScreen() {
   const isPro = useIsPro();
   const languageLabel = s.language === 'system' ? t('settings.languageSystem') : LANGUAGES.find((l) => l.code === s.language)?.nativeName;
 
-  const onExport = async (kind: 'json' | 'csv') => {
+  const onExport = async () => {
     try {
-      await (kind === 'json' ? exportJson() : exportCsv());
+      await exportJson();
       await s.set('lastExportAt', nowIso());
     } catch (e) {
       console.error(e);
@@ -46,7 +46,11 @@ export default function SettingsScreen() {
     }
     if (prepared.kind === 'canceled') return;
     if (prepared.kind === 'invalid') {
-      Alert.alert(t('import.invalid'), t('import.formatHint'));
+      // 他のアプリのファイルを選んだ人にも、メールで送ってもらう案内を出す
+      Alert.alert(t('import.invalid'), [t('import.formatHint'), t('importOther.body')].join('\n\n'), [
+        { text: t('common.close'), style: 'cancel' },
+        { text: t('importOther.mail'), onPress: () => open(mailUrl(t('importOther.subject'), t('importOther.mailBody'))) },
+      ]);
       return;
     }
     const { summary, apply } = prepared;
@@ -74,6 +78,14 @@ export default function SettingsScreen() {
   };
 
   const open = (url: string) => Linking.openURL(url).catch(() => {});
+
+  // 他のアプリからの取り込みはまだない。アプリの名前と書き出したファイルを、メールで送ってもらう
+  const onImportOther = () => {
+    Alert.alert(t('importOther.title'), t('importOther.body'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      { text: t('importOther.mail'), onPress: () => open(mailUrl(t('importOther.subject'), t('importOther.mailBody'))) },
+    ]);
+  };
 
   // オンにするときもオフにするときも、本人か確かめる
   const onToggleLock = async (on: boolean) => {
@@ -153,9 +165,9 @@ export default function SettingsScreen() {
         ) : null}
 
         <SettingsSection title={t('settings.data')} footer={t('settings.storageNote')}>
-          <SettingsRow first label={t('settings.exportJson')} onPress={() => onExport('json')} />
-          <SettingsRow label={t('settings.exportCsv')} onPress={() => onExport('csv')} />
+          <SettingsRow first label={t('settings.exportJson')} onPress={onExport} />
           <SettingsRow label={t('settings.import')} onPress={onImport} />
+          <SettingsRow label={t('settings.importOther')} onPress={onImportOther} />
         </SettingsSection>
 
         <SettingsSection>

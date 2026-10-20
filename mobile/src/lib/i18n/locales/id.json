@@ -286,8 +286,8 @@
     "languageSystem": "Ikuti pengaturan perangkat",
     "data": "Data",
     "exportJson": "Ekspor (JSON)",
-    "exportCsv": "Ekspor (CSV)",
-    "import": "Impor (JSON Ongo, CSV aplikasi lain)",
+    "import": "Impor (JSON Ongo)",
+    "importOther": "Pindah dari aplikasi lain",
     "storageNote": "Catatanmu tetap di perangkat ini dan tidak pernah dikirim ke mana pun. Ekspor menyertakan catatanmu.",
     "pro": "Pro",
     "proActive": "Aktif",
@@ -312,7 +312,7 @@
   },
   "import": {
     "invalid": "File ini tidak bisa dibaca",
-    "formatHint": "Mendukung file JSON Ongo dan file CSV dengan kolom tanggal.",
+    "formatHint": "Mendukung file JSON yang diekspor dari Ongo.",
     "confirmTitle": "Impor?",
     "habits_other": "Kebiasaan baru: {{count}}",
     "records_other": "Entri: {{count}}",
@@ -321,6 +321,13 @@
     "run": "Impor",
     "done": "Berhasil diimpor",
     "failed": "Gagal mengimpor. Catatanmu tidak berubah."
+  },
+  "importOther": {
+    "title": "Impor dari aplikasi lain segera hadir",
+    "body": "Kirimkan nama aplikasi yang ingin kamu impor beserta file yang diekspor dari aplikasi itu lewat email. Ini membantu kami menambahkan dukungannya.",
+    "mail": "Kirim Email",
+    "subject": "Impor dari aplikasi lain",
+    "mailBody": "Aplikasi yang ingin diimpor:\n\n(Lampirkan file yang diekspor dari aplikasi itu)"
   },
   "notifications": {
     "channel": "Pengingat kebiasaan",

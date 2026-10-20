@@ -286,8 +286,8 @@
     "languageSystem": "端末の設定に従う",
     "data": "データ",
     "exportJson": "書き出す（JSON）",
-    "exportCsv": "書き出す（CSV）",
-    "import": "取り込む（このアプリの JSON、他のアプリの CSV）",
+    "import": "取り込む（このアプリの JSON）",
+    "importOther": "他のアプリから移す",
     "storageNote": "記録はこの端末の中だけに保存し、外部には送りません。書き出しにはメモも含まれます。",
     "pro": "Pro",
     "proActive": "利用中",
@@ -312,7 +312,7 @@
   },
   "import": {
     "invalid": "このファイルは読み込めませんでした",
-    "formatHint": "このアプリの JSON か、日付の列がある CSV に対応しています。",
+    "formatHint": "このアプリで書き出した JSON に対応しています。",
     "confirmTitle": "取り込みますか？",
     "habits_other": "新しい習慣：{{count}}件",
     "records_other": "記録：{{count}}件",
@@ -321,6 +321,13 @@
     "run": "取り込む",
     "done": "取り込みました",
     "failed": "取り込めませんでした。記録は変わっていません。"
+  },
+  "importOther": {
+    "title": "他のアプリからの取り込みは準備中です",
+    "body": "取り込みたいアプリの名前と、そのアプリで書き出したファイルをメールで送ってください。対応するときの参考にします。",
+    "mail": "メールを送る",
+    "subject": "他のアプリからの取り込み",
+    "mailBody": "取り込みたいアプリ：\n\n（そのアプリで書き出したファイルを添付してください）"
   },
   "notifications": {
     "channel": "習慣の通知",
