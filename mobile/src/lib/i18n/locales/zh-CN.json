@@ -275,6 +275,14 @@
       "sun": "周日",
       "mon": "周一"
     },
+    "todayHistory": "今天页的记录",
+    "todayHistories": {
+      "week": "1周",
+      "3m": "3个月",
+      "6m": "半年",
+      "1y": "1年"
+    },
+    "todayHistoryFooter": "在今天页为每个习惯显示的记录期间。较长的期间以图表显示。",
     "celebrations": "里程碑庆祝",
     "celebrationsDetail": "在 7 天、30 天、100 天等节点显示一次卡片",
     "notifications": "通知",

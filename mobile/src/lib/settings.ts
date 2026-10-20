@@ -12,6 +12,10 @@ const PREFIX = 'ongo.';
 
 export type WeekStartPreference = 'system' | 'sun' | 'mon';
 
+/** きょうの一覧で、習慣ごとに見せる記録の期間 */
+export type TodayHistoryRange = 'week' | '3m' | '6m' | '1y';
+export const TODAY_HISTORY_RANGES: TodayHistoryRange[] = ['week', '3m', '6m', '1y'];
+
 type Values = {
   language: LanguagePreference;
   appearance: AppearancePreference;
@@ -19,6 +23,7 @@ type Values = {
   theme: ThemeId;
   dayStartHour: DayStartHour;
   weekStart: WeekStartPreference;
+  todayHistory: TodayHistoryRange;
   /** 節目のお祝い */
   celebrations: boolean;
   /** 1日のまとめ通知 */
@@ -41,6 +46,7 @@ const DEFAULTS: Values = {
   theme: DEFAULT_THEME,
   dayStartHour: 0,
   weekStart: 'system',
+  todayHistory: 'week',
   celebrations: true,
   summaryEnabled: false,
   summaryTime: '08:00',
@@ -57,6 +63,7 @@ const VALIDATORS: { [K in keyof Values]: (raw: unknown) => Values[K] | undefined
   theme: (v) => (isThemeId(v) ? v : undefined),
   dayStartHour: (v) => (isDayStartHour(v) ? v : undefined),
   weekStart: (v) => (v === 'system' || v === 'sun' || v === 'mon' ? v : undefined),
+  todayHistory: (v) => (TODAY_HISTORY_RANGES.includes(v as TodayHistoryRange) ? (v as TodayHistoryRange) : undefined),
   celebrations: (v) => (typeof v === 'boolean' ? v : undefined),
   summaryEnabled: (v) => (typeof v === 'boolean' ? v : undefined),
   summaryTime: (v) => (isValidTime(v) ? v : undefined),

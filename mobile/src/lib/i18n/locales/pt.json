@@ -297,6 +297,14 @@
       "sun": "Domingo",
       "mon": "Segunda"
     },
+    "todayHistory": "Histórico em Hoje",
+    "todayHistories": {
+      "week": "1 semana",
+      "3m": "3 meses",
+      "6m": "6 meses",
+      "1y": "1 ano"
+    },
+    "todayHistoryFooter": "Quanto histórico cada hábito mostra em Hoje. Períodos mais longos aparecem como gráfico.",
     "celebrations": "Comemorar marcos",
     "celebrationsDetail": "Mostra um cartão uma vez em marcos como 7, 30 e 100 dias",
     "notifications": "Notificações",

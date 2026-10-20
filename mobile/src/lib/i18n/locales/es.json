@@ -297,6 +297,14 @@
       "sun": "Domingo",
       "mon": "Lunes"
     },
+    "todayHistory": "Historial en Hoy",
+    "todayHistories": {
+      "week": "1 semana",
+      "3m": "3 meses",
+      "6m": "6 meses",
+      "1y": "1 año"
+    },
+    "todayHistoryFooter": "Cuánto historial muestra cada hábito en Hoy. Los periodos largos aparecen como gráfico.",
     "celebrations": "Celebrar hitos",
     "celebrationsDetail": "Muestra una tarjeta una vez en hitos como 7, 30 y 100 días",
     "notifications": "Notificaciones",

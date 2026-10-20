@@ -6,10 +6,10 @@ import { Chip } from '@/components/Chip';
 import { SettingsCustomRow, SettingsRow, SettingsSection, SettingsSwitchRow } from '@/components/SettingsRow';
 import { DAY_START_HOURS } from '@/lib/day';
 import { formatTimeOfDay } from '@/lib/format';
-import { useSettings, type WeekStartPreference } from '@/lib/settings';
+import { TODAY_HISTORY_RANGES, useSettings, type WeekStartPreference } from '@/lib/settings';
 import { spacing } from '@/theme';
 
-/** 記録の設定（1日の区切り、週の始まり、お休み期間、アーカイブ、節目のお祝い）。きょうの見出しと設定から開く */
+/** 記録の設定（きょうの記録の表示、1日の区切り、週の始まり、お休み期間、アーカイブ、節目のお祝い）。きょうの見出しと設定から開く */
 export default function RecordSettingsScreen() {
   const { t } = useTranslation();
   const router = useRouter();
@@ -19,6 +19,15 @@ export default function RecordSettingsScreen() {
     <>
       <Stack.Screen options={{ title: t('settings.recordSettings') }} />
       <ScrollView contentContainerStyle={styles.content}>
+        <SettingsSection footer={t('settings.todayHistoryFooter')}>
+          <SettingsCustomRow first label={t('settings.todayHistory')}>
+            <View style={styles.chips}>
+              {TODAY_HISTORY_RANGES.map((r) => (
+                <Chip key={r} grow label={t(`settings.todayHistories.${r}`)} selected={s.todayHistory === r} onPress={() => s.set('todayHistory', r)} />
+              ))}
+            </View>
+          </SettingsCustomRow>
+        </SettingsSection>
         <SettingsSection footer={t('settings.dayStartFooter')}>
           <SettingsCustomRow first label={t('settings.dayStart')}>
             <View style={styles.chips}>

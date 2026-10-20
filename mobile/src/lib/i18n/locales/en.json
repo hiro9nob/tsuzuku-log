@@ -286,6 +286,14 @@
       "sun": "Sunday",
       "mon": "Monday"
     },
+    "todayHistory": "History on Today",
+    "todayHistories": {
+      "week": "1 week",
+      "3m": "3 months",
+      "6m": "6 months",
+      "1y": "1 year"
+    },
+    "todayHistoryFooter": "How much history each habit shows on Today. Longer ranges appear as a graph.",
     "celebrations": "Milestone celebrations",
     "celebrationsDetail": "Shows a card once at milestones like 7, 30 and 100 days",
     "notifications": "Notifications",

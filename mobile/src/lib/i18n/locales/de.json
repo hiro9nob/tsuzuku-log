@@ -286,6 +286,14 @@
       "sun": "Sonntag",
       "mon": "Montag"
     },
+    "todayHistory": "Verlauf in „Heute“",
+    "todayHistories": {
+      "week": "1 Woche",
+      "3m": "3 Monate",
+      "6m": "6 Monate",
+      "1y": "1 Jahr"
+    },
+    "todayHistoryFooter": "Wie viel Verlauf jede Gewohnheit in „Heute“ zeigt. Längere Zeiträume erscheinen als Grafik.",
     "celebrations": "Meilensteine feiern",
     "celebrationsDetail": "Zeigt einmalig eine Karte bei Meilensteinen wie 7, 30 und 100 Tagen",
     "notifications": "Mitteilungen",

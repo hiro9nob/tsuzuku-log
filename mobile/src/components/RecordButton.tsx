@@ -18,7 +18,7 @@ type Props = {
   onLongPress?: () => void;
 };
 
-/** 大きな丸。1タップで記録する。できたらさりげなく弾む */
+/** 丸いボタン。1タップで記録する。できたらさりげなく弾む。大きさは習慣のアイコンとそろえ、押しやすさの目安の 44pt にする */
 export function RecordButton({ habit, value, done, over, rest, label, onPress, onLongPress }: Props) {
   const theme = useTheme();
   const color = theme.habit(habit.color);
@@ -42,7 +42,7 @@ export function RecordButton({ habit, value, done, over, rest, label, onPress, o
     <Pressable
       onPress={onPress}
       onLongPress={onLongPress}
-      hitSlop={6}
+      hitSlop={8}
       accessibilityRole="button"
       accessibilityLabel={label}
       accessibilityState={{ checked: habit.kind === 'check' ? done : undefined }}>
@@ -59,7 +59,7 @@ export function RecordButton({ habit, value, done, over, rest, label, onPress, o
             },
           ]}>
           {done && habit.kind !== 'limit' ? (
-            <Ionicons name="checkmark" size={30} color={theme.isDark ? '#121212' : '#FFFFFF'} />
+            <Ionicons name="checkmark" size={24} color={theme.isDark ? '#121212' : '#FFFFFF'} />
           ) : habit.kind === 'check' ? null : (
             <Text
               style={[styles.step, { color: filled ? (theme.isDark ? '#121212' : '#FFFFFF') : over ? theme.textSecondary : color }]}
@@ -75,6 +75,6 @@ export function RecordButton({ habit, value, done, over, rest, label, onPress, o
 }
 
 const styles = StyleSheet.create({
-  circle: { width: 56, height: 56, borderRadius: 28, borderWidth: 3, alignItems: 'center', justifyContent: 'center' },
-  step: { fontSize: 15, fontWeight: '800', paddingHorizontal: 4 },
+  circle: { width: 44, height: 44, borderRadius: 22, borderWidth: 2.5, alignItems: 'center', justifyContent: 'center' },
+  step: { fontSize: 13, fontWeight: '800', paddingHorizontal: 3 },
 });

@@ -275,6 +275,14 @@
       "sun": "Minggu",
       "mon": "Senin"
     },
+    "todayHistory": "Riwayat di Hari ini",
+    "todayHistories": {
+      "week": "1 minggu",
+      "3m": "3 bulan",
+      "6m": "6 bulan",
+      "1y": "1 tahun"
+    },
+    "todayHistoryFooter": "Seberapa banyak riwayat yang ditampilkan tiap kebiasaan di Hari ini. Rentang yang lebih panjang tampil sebagai grafik.",
     "celebrations": "Rayakan pencapaian",
     "celebrationsDetail": "Menampilkan kartu sekali saat mencapai 7, 30, dan 100 hari, dst.",
     "notifications": "Notifikasi",

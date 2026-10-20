@@ -297,6 +297,14 @@
       "sun": "Dimanche",
       "mon": "Lundi"
     },
+    "todayHistory": "Historique dans Aujourd’hui",
+    "todayHistories": {
+      "week": "1 semaine",
+      "3m": "3 mois",
+      "6m": "6 mois",
+      "1y": "1 an"
+    },
+    "todayHistoryFooter": "L’historique affiché pour chaque habitude dans Aujourd’hui. Les périodes longues s’affichent en graphique.",
     "celebrations": "Célébrer les étapes",
     "celebrationsDetail": "Affiche une carte une fois à 7, 30 ou 100 jours, par exemple",
     "notifications": "Notifications",

@@ -275,6 +275,14 @@
       "sun": "日曜",
       "mon": "月曜"
     },
+    "todayHistory": "きょうの記録の表示",
+    "todayHistories": {
+      "week": "1週間",
+      "3m": "3か月",
+      "6m": "半年",
+      "1y": "1年"
+    },
+    "todayHistoryFooter": "きょうの一覧で、習慣ごとに見せる記録の期間です。3か月以上は、グラフで表示します。",
     "celebrations": "節目のお祝い",
     "celebrationsDetail": "7日・30日・100日などの節目に、カードを1回だけ出します",
     "notifications": "通知",

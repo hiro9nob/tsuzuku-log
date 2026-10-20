@@ -275,6 +275,14 @@
       "sun": "일요일",
       "mon": "월요일"
     },
+    "todayHistory": "오늘 화면의 기록",
+    "todayHistories": {
+      "week": "1주",
+      "3m": "3개월",
+      "6m": "6개월",
+      "1y": "1년"
+    },
+    "todayHistoryFooter": "오늘 화면에서 습관마다 보여 줄 기록 기간입니다. 3개월 이상은 그래프로 표시합니다.",
     "celebrations": "기념일 축하",
     "celebrationsDetail": "7일, 30일, 100일 같은 기념일에 카드를 한 번 보여 줘요",
     "notifications": "알림",

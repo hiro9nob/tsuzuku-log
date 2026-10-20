@@ -6,7 +6,7 @@ import { addDays, orderedWeekdays, parseDay, weekStartOf, type Day, type WeekSta
 import { currentLocale } from '@/lib/i18n';
 import { weekdayName } from '@/lib/format';
 import type { DayStatus } from '@/lib/stats';
-import { spacing, useTheme } from '@/theme';
+import { spacing, useTheme, type Theme } from '@/theme';
 
 const CELL = 14;
 const GAP = 3;
@@ -47,21 +47,7 @@ export function Heatmap({
     return { days, month: monthStart ? monthFmt.format(new Date(`${monthStart}T12:00:00Z`)) : null };
   });
 
-  const cellStyle = (day: Day) => {
-    if (day > today || day < startDay) return { backgroundColor: theme.surfaceAlt, opacity: 0.35 };
-    switch (statusOf(day)) {
-      case 'done':
-        return { backgroundColor: color };
-      case 'partial':
-        return { backgroundColor: color, opacity: 0.45 };
-      case 'rest':
-        return { borderWidth: 2, borderColor: color };
-      case 'over':
-        return { backgroundColor: theme.textSecondary };
-      default:
-        return { backgroundColor: theme.surfaceAlt };
-    }
-  };
+  const cellStyle = (day: Day) => heatmapCellStyle(day > today || day < startDay ? null : statusOf(day), color, theme, 2);
 
   const onLayout = (e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width);
 
@@ -111,6 +97,23 @@ export function Heatmap({
       </View>
     </View>
   );
+}
+
+/** マスの見た目。null は始める前の日とこれからの日（記録のない日と区別して薄くする） */
+export function heatmapCellStyle(status: DayStatus | null, color: string, theme: Theme, restBorder: number) {
+  if (status === null) return { backgroundColor: theme.surfaceAlt, opacity: 0.35 };
+  switch (status) {
+    case 'done':
+      return { backgroundColor: color };
+    case 'partial':
+      return { backgroundColor: color, opacity: 0.45 };
+    case 'rest':
+      return { borderWidth: restBorder, borderColor: color };
+    case 'over':
+      return { backgroundColor: theme.textSecondary };
+    default:
+      return { backgroundColor: theme.surfaceAlt };
+  }
 }
 
 function Legend({ label, style }: { label: string; style: object }) {
