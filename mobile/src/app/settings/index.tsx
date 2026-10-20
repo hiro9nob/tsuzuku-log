@@ -139,7 +139,6 @@ export default function SettingsScreen() {
         <SettingsSection title={t('settings.display')}>
           <SettingsRow first label={t('settings.language')} value={languageLabel} onPress={() => router.push('/settings/language')} />
           <SettingsRow label={t('appearance.title')} value={t(`appearance.modes.${s.appearance}`)} onPress={() => router.push('/settings/appearance')} />
-          <SettingsRow label={t('today.reorder')} onPress={() => router.push('/reorder')} />
         </SettingsSection>
 
         <SettingsSection title={t('lock.section')} footer={t('lock.footer')}>
