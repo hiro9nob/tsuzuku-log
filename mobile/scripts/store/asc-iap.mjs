@@ -1,5 +1,5 @@
 // App Store Connect：Ongo Pro の課金アイテム（サブスクリプションのグループ、月額・年額、買い切り）（Keptly の scripts/store/asc-iap.mjs から）
-// 表示名・説明・価格・配信する国まで作る。あるものは作らない。表示名・説明・価格が違えば直す
+// 表示名・説明・価格・配信する国まで作る。あるものは作らない。表示名・説明・価格が違えば直す。STORE_LOCALES にない言語は消す
 import fs from 'node:fs';
 import { IAP_DESCRIPTIONS, PLAN_NAME, PRODUCTS, STORE_LOCALES, SUBSCRIPTION_GROUP } from './config.mjs';
 import { asc, ascAll, ascAppId, must } from './lib.mjs';
@@ -30,9 +30,17 @@ const texts = Object.fromEntries(
     return [lang, { names, description }];
   })
 );
-/** 言語ごとの表示名と説明。なければ作り、違えば直す */
+/** STORE_LOCALES にない言語を消す */
+async function removeLocalizations(label, type, have) {
+  for (const cur of have.filter((x) => !wantedLocales.has(x.attributes.locale))) {
+    must(`${label} ${cur.attributes.locale} delete`, await asc(`/v1/${type}/${cur.id}`, { method: 'DELETE' }));
+    console.log(`${label} ${cur.attributes.locale}`, 'deleted');
+  }
+}
+/** 言語ごとの表示名と説明。なければ作り、違えば直す。STORE_LOCALES にない言語は消す */
 async function upsertLocalizations(label, type, listPath, attrsFor, relationships) {
   const have = await ascAll(listPath);
+  await removeLocalizations(label, type, have);
   for (const [lang, locale] of eachLocale()) {
     const attrs = attrsFor(lang);
     const cur = have.find((x) => x.attributes.locale === locale);
@@ -46,6 +54,7 @@ async function upsertLocalizations(label, type, listPath, attrsFor, relationship
 const eachLocale = function* () {
   for (const [lang, locales] of Object.entries(STORE_LOCALES)) for (const locale of locales) yield [lang, locale];
 };
+const wantedLocales = new Set(Object.values(STORE_LOCALES).flat());
 
 const territories = (await ascAll('/v1/territories?limit=200')).map((t) => ({ type: 'territories', id: t.id }));
 const pickPoint = (points, territory, price) => {
@@ -65,7 +74,9 @@ if (!group)
       break;
     }
 group ??= await post('group', 'subscriptionGroups', { referenceName: SUBSCRIPTION_GROUP }, { app: rel('apps', APP) });
-const groupLocales = (await ascAll(`/v1/subscriptionGroups/${group.id}/subscriptionGroupLocalizations?limit=50`)).map((x) => x.attributes.locale);
+const groupLocs = await ascAll(`/v1/subscriptionGroups/${group.id}/subscriptionGroupLocalizations?limit=50`);
+await removeLocalizations('group', 'subscriptionGroupLocalizations', groupLocs);
+const groupLocales = groupLocs.map((x) => x.attributes.locale);
 for (const [, locale] of eachLocale())
   if (!groupLocales.includes(locale))
     await post(`group ${locale}`, 'subscriptionGroupLocalizations', { locale, name: SUBSCRIPTION_GROUP }, { subscriptionGroup: rel('subscriptionGroups', group.id) });

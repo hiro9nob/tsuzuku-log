@@ -78,37 +78,22 @@ export const PRODUCTS = [
 /** サブスクリプションのグループ名（ストアで購入者に見える） */
 export const SUBSCRIPTION_GROUP = PLAN_NAME;
 
-/** アプリの言語 → App Store の言語。スペイン語・フランス語・ポルトガル語は地域違いにも同じ文を入れる */
+/**
+ * アプリの言語 → App Store の言語。2026-10-22 に、申請は英語と日本語だけにした（ほかの言語の文は git の履歴にある）
+ * ここにない言語は、asc-listing.mjs と asc-iap.mjs が App Store Connect から消す（主言語の en-US は消せない）
+ */
 export const STORE_LOCALES = {
   en: ['en-US'],
   ja: ['ja'],
-  'zh-CN': ['zh-Hans'],
-  'zh-TW': ['zh-Hant'],
-  ko: ['ko'],
-  es: ['es-ES', 'es-MX'],
-  fr: ['fr-FR', 'fr-CA'],
-  de: ['de-DE'],
-  pt: ['pt-BR', 'pt-PT'],
-  th: ['th'],
-  id: ['id'],
 };
 
 /**
- * 課金アイテムの説明（ストアの購入画面に出る。55文字以内）。3つとも同じ Pro なので同じ文
+ * 課金アイテムの説明（ストアの購入画面に出る。55文字以内）。3つとも同じ Pro なので同じ文。言語は STORE_LOCALES と同じ
  * 表示名は「Ongo Pro (月額など)」で、月額などはアプリの pro.* の訳を使う（scripts/store/asc-iap.mjs）
  */
 export const IAP_DESCRIPTIONS = {
   en: 'Themes, icons, custom repeats, reminders and deep stats',
   ja: 'テーマ、アイコン、自由なくり返し、通知、詳しい統計が使える',
-  'zh-CN': '解锁主题、图标、灵活重复、多个提醒和详细统计',
-  'zh-TW': '解鎖主題、圖示、彈性重複、多個提醒和詳細統計',
-  ko: '테마, 아이콘, 유연한 반복, 여러 알림, 상세 통계',
-  es: 'Temas, iconos, repeticiones, avisos y estadísticas',
-  fr: 'Thèmes, icônes, répétitions, rappels et statistiques',
-  de: 'Themen, Icons, Wiederholungen, Erinnerungen, Statistik',
-  pt: 'Temas, ícones, repetições, lembretes e estatísticas',
-  th: 'ธีม ไอคอน การทำซ้ำ การเตือน และสถิติแบบละเอียด',
-  id: 'Tema, ikon, pengulangan, pengingat, dan statistik',
 };
 
 /** アプリ全体の設定（scripts/store/asc-app.mjs）。カテゴリは「ヘルスケア／フィットネス」と「仕事効率化」 */

@@ -93,6 +93,7 @@
     "store:asc:listing": "node --env-file=.env.local scripts/store/asc-listing.mjs",
     "store:asc:screenshots": "node --env-file=.env.local scripts/store/asc-screenshots.mjs",
     "store:asc:review": "node --env-file=.env.local scripts/store/asc-review.mjs",
+    "store:asc:submit": "node --env-file=.env.local scripts/store/asc-submit.mjs",
     "store:rc": "node --env-file=.env.local scripts/store/rc-setup.mjs",
     "build:dev:ios": "pnpm dlx eas-cli@latest build --profile development --platform ios",
     "build:dev:android": "pnpm dlx eas-cli@latest build --profile development --platform android",

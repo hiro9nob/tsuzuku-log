@@ -158,6 +158,7 @@ EXPO_PUBLIC_DEMO_DATA=1 pnpm start
 |---|---|
 | `pnpm store:check` | App Store Connect と RevenueCat の今の設定を出す（読むだけ）。片方のキーがなくても、もう片方は出す |
 | `pnpm store:rc` | RevenueCat の iOS アプリ、商品（App Store と Test Store）、権利 `pro`、Offering `default` とパッケージ。公開用の SDK キーと Test Store のキーを出す |
+| `pnpm store:asc:submit` | 審査の提出を作り、編集できるバージョン（ビルド付き）を入れる。出さない。課金を画面で「審査用に追加」したあと、人の承認を得て `--submit` で出す。`--cancel` で取り消す |
 
 扱わないもの：プロジェクトとシークレットキーの作成、App Store サーバー通知（画面で。[revenuecat-setup.md](./revenuecat-setup.md)）。App Store Connect の課金アイテムなどは、アプリの枠を作るときにスクリプトを足す。
 

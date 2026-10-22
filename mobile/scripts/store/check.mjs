@@ -41,8 +41,12 @@ await section('App Store Connect', async () => {
   const info = must('appInfos', await asc(`/v1/apps/${APP}/appInfos`)).data[0];
   const category = async (r) => (await asc(`/v1/appInfos/${info.id}/${r}`)).json?.data?.id ?? '-';
   console.log('category:', await category('primaryCategory'), '/', await category('secondaryCategory'), 'age rating:', info.attributes.appStoreAgeRating ?? '-');
+  const infoLocales = (await ascAll(`/v1/appInfos/${info.id}/appInfoLocalizations?limit=50`)).map((l) => l.attributes.locale).sort();
+  console.log('listing locales:', infoLocales.join(', '));
   const territories = (await asc(`/v1/apps/${APP}/appAvailabilityV2`)).json?.data;
-  console.log('available in new territories:', territories?.attributes?.availableInNewTerritories ?? '-');
+  const available = territories ? (await ascAll(`/v2/appAvailabilities/${territories.id}/territoryAvailabilities?limit=200`)).filter((t) => t.attributes.available).length : '-';
+  const allTerritories = (await ascAll('/v1/territories?limit=200')).length;
+  console.log(`available territories: ${available} / ${allTerritories}`, 'new territories:', territories?.attributes?.availableInNewTerritories ?? '-');
 
   for (const g of await ascAll(`/v1/apps/${APP}/subscriptionGroups?limit=50`)) {
     console.log('subscription group:', g.attributes.referenceName, g.id);

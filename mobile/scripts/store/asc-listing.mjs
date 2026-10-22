@@ -1,5 +1,5 @@
-// App Store Connect：掲載情報（言語ごとのアプリ名、サブタイトル、説明文、キーワード、プロモーション用テキスト、URL）を11言語で入れる（Keptly の scripts/store/asc-listing.mjs から）
-// 文は scripts/store/listing/<アプリの言語>.json。言語がなければ作り、あれば上書きする
+// App Store Connect：掲載情報（言語ごとのアプリ名、サブタイトル、説明文、キーワード、プロモーション用テキスト、URL）を config.mjs の STORE_LOCALES の言語で入れる（Keptly の scripts/store/asc-listing.mjs から）
+// 文は scripts/store/listing/<アプリの言語>.json。言語がなければ作り、あれば上書きし、STORE_LOCALES にない言語は消す
 // 対象は、編集できる（まだ審査に出していない）バージョン
 import fs from 'node:fs';
 import { STORE_LOCALES } from './config.mjs';
@@ -69,4 +69,15 @@ for (const [lang, locales] of Object.entries(STORE_LOCALES)) {
     console.log('listing', locale, 'ok');
   }
 }
+
+// STORE_LOCALES にない言語を消す（主言語の en-US は消せないので、STORE_LOCALES に残しておく）
+const wanted = new Set(Object.values(STORE_LOCALES).flat());
+const remove = async (label, type, items) => {
+  for (const l of items.filter((x) => !wanted.has(x.attributes.locale))) {
+    must(`${label} ${l.attributes.locale} delete`, await asc(`/v1/${type}/${l.id}`, { method: 'DELETE' }));
+    console.log(label, l.attributes.locale, 'deleted');
+  }
+};
+await remove('version', 'appStoreVersionLocalizations', await ascAll(`/v1/appStoreVersions/${version.id}/appStoreVersionLocalizations?limit=50`));
+await remove('appInfo', 'appInfoLocalizations', await ascAll(`/v1/appInfos/${info.id}/appInfoLocalizations?limit=50`));
 console.log('version', version.attributes.versionString);
