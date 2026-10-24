@@ -1,0 +1,18 @@
+---
+import Slide from '../../../components/Slide.astro';
+import Bare from '../../../layouts/Bare.astro';
+import { LANGS, SLIDES, STORES, type Lang, type Store } from '../../../data/slides';
+
+export function getStaticPaths() {
+  return STORES.flatMap((store) =>
+    LANGS.flatMap((lang) => SLIDES.map((_, i) => ({ params: { store, lang, n: String(i + 1) } }))),
+  );
+}
+
+const { store, lang, n } = Astro.params as { store: Store; lang: Lang; n: string };
+const index = Number(n) - 1;
+---
+
+<Bare title={`${store} ${lang} ${n}`}>
+  <Slide store={store} lang={lang} slide={SLIDES[index]} index={index} />
+</Bare>

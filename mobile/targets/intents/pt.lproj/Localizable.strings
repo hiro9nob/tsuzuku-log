@@ -1,0 +1,11 @@
+/* Siri とショートカットの文言（キーは Swift の英語の文字列） */
+"Habit" = "Hábito";
+"Log a habit" = "Registrar um hábito";
+"Logs a habit for today without opening the app." = "Registra um hábito de hoje sem abrir o app.";
+"Which habit?" = "Qual hábito?";
+"Couldn't log it. Please open the app." = "Não foi possível registrar. Abra o app.";
+"Logged %@." = "%@ registrado.";
+"Today's progress" = "Progresso de hoje";
+"Tells you how many of today's habits are done." = "Diz quantos hábitos de hoje você concluiu.";
+"Open the app to add a habit." = "Abra o app para adicionar um hábito.";
+"%lld of %lld done today." = "Hoje: %lld de %lld feitos.";

@@ -1,0 +1,396 @@
+---
+// ホーム画面とウィジェット（iPhone 16 Pro Max の 440 x 956 pt で描き、外側で拡大する）
+// ウィジェットの見た目は mobile/targets/widget/TodayWidget.swift と HeatmapWidget.swift に合わせる
+import { WIDGET, type Lang } from '../data/slides';
+
+interface Props {
+  lang: Lang;
+  /** Google Play 用は iOS の状態バーを描かない */
+  statusBar: boolean;
+}
+const { lang, statusBar } = Astro.props;
+const w = WIDGET[lang];
+const accent = '#4A7C59';
+
+// 読書のマス目：日曜始まり、きょう（2026-10-19 月曜）は最後の列の2段目。41日連続、途中に2回お休み
+type Cell = 'done' | 'rest' | 'none' | 'outside';
+const WEEKS = 21;
+const TODAY_ROW = 1;
+let seed = 7;
+const rnd = () => ((seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296);
+const weeks: Cell[][] = [];
+for (let c = 0; c < WEEKS; c++) {
+  const col: Cell[] = [];
+  for (let r = 0; r < 7; r++) {
+    const ago = (WEEKS - 1 - c) * 7 + (TODAY_ROW - r);
+    if (ago < 0) col.push('outside');
+    else if (ago === 6 || ago === 27) col.push('rest');
+    else if (ago <= 40) col.push('done');
+    else if (ago > 125) col.push('none');
+    else col.push(rnd() < 0.78 ? 'done' : 'none');
+  }
+  weeks.push(col);
+}
+
+const items = [
+  { name: w.water, done: false, ring: 1250 / 2000, glyph: 'drop' },
+  { name: w.read, done: true },
+  { name: w.walk, done: true },
+  { name: w.study, done: true },
+];
+---
+
+<div class="home" style={`--accent:${accent}`}>
+  {
+    statusBar ? (
+      <div class="status">
+        <span class="time">9:41</span>
+        <span class="island" />
+        <span class="icons">
+          <svg width="19" height="12" viewBox="0 0 19 12"><rect x="0" y="8" width="3" height="4" rx="1" /><rect x="5" y="5.5" width="3" height="6.5" rx="1" /><rect x="10" y="3" width="3" height="9" rx="1" /><rect x="15" y="0" width="3" height="12" rx="1" /></svg>
+          <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.2c2.4 0 4.6.9 6.3 2.5l1.2-1.3C14 1.5 11.4.4 8.5.4S3 1.5 1 3.4l1.2 1.3C3.9 3.1 6.1 2.2 8.5 2.2zm0 3.6c1.4 0 2.7.5 3.7 1.4l1.2-1.3c-1.3-1.2-3-1.9-4.9-1.9s-3.6.7-4.9 1.9l1.2 1.3c1-.9 2.3-1.4 3.7-1.4zm0 3.5c-.6 0-1.2.2-1.6.6L8.5 11.7l1.6-1.8c-.4-.4-1-.6-1.6-.6z" /></svg>
+          <svg width="28" height="13" viewBox="0 0 28 13"><rect x=".5" y=".5" width="24" height="12" rx="3.5" fill="none" stroke="currentColor" opacity=".4" /><rect x="2" y="2" width="21" height="9" rx="2" /><path d="M26 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2z" opacity=".4" /></svg>
+        </span>
+      </div>
+    ) : (
+      <div class="status android">
+        <span class="time">9:41</span>
+        <span class="punch" />
+      </div>
+    )
+  }
+
+  <!-- きょう（中） -->
+  <div class="widget medium" style="top:86px">
+    <div class="header"><b>{w.today}</b><span>3/5</span></div>
+    <div class="grid2">
+      {
+        items.map((it) => (
+          <div class="row">
+            <span class:list={['circle', 'c34', { done: it.done }]}>
+              {it.done ? (
+                <svg class="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+              ) : (
+                <>
+                  <svg class="ring" viewBox="0 0 34 34"><circle cx="17" cy="17" r="10.5" pathLength="100" stroke-dasharray={`${(it.ring ?? 0) * 100} 100`} /></svg>
+                  <svg class="glyph" viewBox="0 0 24 24"><path d="M12 2.5C9 7 6 10.3 6 14a6 6 0 0 0 12 0c0-3.7-3-7-6-11.5z" /></svg>
+                </>
+              )}
+            </span>
+            <span class="name">{it.name}</span>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- 記録のマス目（中） -->
+  <div class="widget medium" style="top:282px">
+    <div class="hm-head">
+      <svg class="book" viewBox="0 0 24 24"><path d="M2 5.5C4.8 4.3 8.3 4.4 11 6v14c-2.7-1.6-6.2-1.7-9-.5zM22 5.5C19.2 4.3 15.7 4.4 13 6v14c2.7-1.6 6.2-1.7 9-.5z" /></svg>
+      <b>{w.read}</b>
+      <span class="circle c26 done"><svg class="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg></span>
+    </div>
+    <div class="hm">
+      {
+        weeks.map((col) => (
+          <div class="col">
+            {col.map((s) => (
+              <i class={s} />
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+
+  <!-- きょう（小）とアプリのアイコン -->
+  <div class="widget small" style="top:478px">
+    <div class="header"><b>{w.today}</b><span>3/5</span></div>
+    <div class="grid-small">
+      {
+        items.map((it) => (
+          <span class:list={['circle', 'c46', { done: it.done }]}>
+            {it.done ? (
+              <svg class="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            ) : (
+              <>
+                <svg class="ring" viewBox="0 0 34 34"><circle cx="17" cy="17" r="10.5" pathLength="100" stroke-dasharray={`${(it.ring ?? 0) * 100} 100`} /></svg>
+                <svg class="glyph" viewBox="0 0 24 24"><path d="M12 2.5C9 7 6 10.3 6 14a6 6 0 0 0 12 0c0-3.7-3-7-6-11.5z" /></svg>
+              </>
+            )}
+          </span>
+        ))
+      }
+    </div>
+  </div>
+  <div class="app" style="top:478px">
+    <img src="/icon.png" alt="" />
+    <span>{w.appName}</span>
+  </div>
+
+  <div class="dots"><i /><i class="on" /><i /></div>
+</div>
+
+<style>
+  .home {
+    position: absolute;
+    inset: 0;
+    width: 440px;
+    height: 956px;
+    overflow: hidden;
+    font-family: -apple-system, 'SF Pro Text', 'Hiragino Sans', sans-serif;
+    color: #111;
+    background:
+      radial-gradient(120% 60% at 90% 0%, #b9d6c0 0%, transparent 60%),
+      radial-gradient(100% 60% at 0% 100%, #2f5a3c 0%, transparent 70%),
+      linear-gradient(170deg, #a8c9b0 0%, #6f9c7b 50%, #4a7c59 100%);
+  }
+  .status {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    color: #111;
+  }
+  .status .time {
+    position: absolute;
+    left: 50px;
+    top: 20px;
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .status .island {
+    position: absolute;
+    left: 50%;
+    top: 11px;
+    width: 126px;
+    height: 37px;
+    margin-left: -63px;
+    border-radius: 20px;
+    background: #000;
+  }
+  .status .icons {
+    position: absolute;
+    right: 34px;
+    top: 22px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    fill: currentColor;
+  }
+  .status.android .time {
+    left: 28px;
+    top: 16px;
+    font-size: 15px;
+  }
+  .status .punch {
+    position: absolute;
+    left: 50%;
+    top: 14px;
+    width: 22px;
+    height: 22px;
+    margin-left: -11px;
+    border-radius: 50%;
+    background: #000;
+  }
+
+  .widget {
+    position: absolute;
+    left: 38px;
+    background: #fff;
+    border-radius: 23px;
+    padding: 16px;
+    box-sizing: border-box;
+    box-shadow: 0 6px 18px rgba(30, 60, 40, 0.12);
+  }
+  .medium {
+    width: 364px;
+    height: 170px;
+  }
+  .small {
+    width: 170px;
+    height: 170px;
+  }
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 17px;
+  }
+  .header b {
+    font-weight: 600;
+  }
+  .header span {
+    font-weight: 600;
+    color: rgba(60, 60, 67, 0.6);
+    font-variant-numeric: tabular-nums;
+  }
+  .grid2 {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 8px;
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .name {
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+  .circle {
+    position: relative;
+    flex: none;
+    border-radius: 50%;
+    border: 2.5px solid var(--accent);
+    box-sizing: border-box;
+    display: grid;
+    place-items: center;
+  }
+  .circle.done {
+    background: var(--accent);
+  }
+  .c34 {
+    width: 34px;
+    height: 34px;
+  }
+  .c26 {
+    width: 26px;
+    height: 26px;
+  }
+  .c46 {
+    width: 46px;
+    height: 46px;
+  }
+  .check {
+    width: 46%;
+    height: 46%;
+    fill: none;
+    stroke: #fff;
+    stroke-width: 3.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .ring {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+  }
+  .ring circle {
+    fill: none;
+    stroke: var(--accent);
+    stroke-opacity: 0.45;
+    stroke-width: 4;
+    stroke-linecap: round;
+  }
+  .glyph {
+    width: 40%;
+    height: 40%;
+    fill: var(--accent);
+  }
+  .grid-small {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    justify-items: center;
+  }
+
+  .hm-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+  }
+  .hm-head b {
+    flex: 1;
+    font-weight: 600;
+  }
+  .book {
+    width: 16px;
+    height: 16px;
+    fill: var(--accent);
+  }
+  .hm {
+    margin-top: 8px;
+    display: flex;
+    gap: 3px;
+    justify-content: flex-end;
+  }
+  .col {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .col i {
+    display: block;
+    width: 12.2px;
+    height: 12.2px;
+    border-radius: 2.7px;
+    box-sizing: border-box;
+  }
+  .col .done {
+    background: var(--accent);
+  }
+  .col .rest {
+    border: 2px solid var(--accent);
+  }
+  .col .none {
+    background: rgba(60, 60, 67, 0.11);
+  }
+  .col .outside {
+    background: rgba(60, 60, 67, 0.04);
+  }
+
+  .app {
+    position: absolute;
+    left: 268px;
+    width: 64px;
+    margin-left: 0;
+    text-align: center;
+  }
+  .app img {
+    width: 64px;
+    height: 64px;
+    border-radius: 15px;
+    display: block;
+    box-shadow: 0 4px 12px rgba(30, 60, 40, 0.15);
+  }
+  .app span {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+    white-space: nowrap;
+    margin-left: -20px;
+    margin-right: -20px;
+  }
+  .dots {
+    position: absolute;
+    left: 50%;
+    bottom: 120px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.25);
+  }
+  .dots i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+  }
+  .dots .on {
+    background: #fff;
+  }
+</style>

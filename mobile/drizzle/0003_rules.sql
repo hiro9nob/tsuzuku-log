@@ -1,0 +1,1 @@
+ALTER TABLE `habits` ADD `rules` text DEFAULT '[]' NOT NULL;

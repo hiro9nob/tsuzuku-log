@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "ongo-site",
+  "compatibility_date": "2026-10-19",
+  // Worker のコードはなく、astro build の出力をそのまま配信する
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "force-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "routes": [{ "pattern": "ongo.no9.app", "custom_domain": true }],
+  "workers_dev": false
+}

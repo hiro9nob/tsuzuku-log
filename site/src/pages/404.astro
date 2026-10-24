@@ -1,0 +1,19 @@
+---
+import { localePath, ui } from '../i18n/ui';
+import Base from '../layouts/Base.astro';
+---
+
+<Base lang="en" title={ui.en.notFound.title} noindex>
+  <section class="nf">
+    <h1>{ui.en.notFound.title}</h1>
+    <p lang="ja">{ui.ja.notFound.title}</p>
+    <p><a href={localePath('en')}>{ui.en.notFound.back}</a> ・ <a href={localePath('ja')} lang="ja">{ui.ja.notFound.back}</a></p>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    text-align: center;
+    padding: 64px 0;
+  }
+</style>

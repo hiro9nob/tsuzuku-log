@@ -1,0 +1,244 @@
+---
+import { Image } from 'astro:assets';
+import { APP_STORE_URL } from '../config';
+import { localePath, ui, type Lang } from '../i18n/ui';
+
+const { lang } = Astro.props as { lang: Lang };
+const t = ui[lang];
+
+// アプリの本物の画面（ストアのスクリーンショット用に撮ったもの。store-screenshots/public/raw）。ビルドで縮めて webp にする
+const screens = import.meta.glob<{ default: ImageMetadata }>('../assets/screens/*.png', { eager: true });
+const shot = (name: string) => screens[`../assets/screens/${lang}-${name}.png`].default;
+---
+
+<section class="hero">
+  <div class="hero-text">
+    <h1>{t.hero.title}</h1>
+    <p class="lead">{t.hero.body}</p>
+    {
+      APP_STORE_URL ? (
+        <a class="store" href={APP_STORE_URL}>
+          {t.hero.appStore}
+        </a>
+      ) : (
+        <p class="soon">{t.hero.comingSoon}</p>
+      )
+    }
+  </div>
+  <div class="hero-shot">
+    <Image class="phone" src={shot('today')} alt={t.steps[0].alt} width={600} format="webp" quality={80} loading="eager" fetchpriority="high" />
+  </div>
+</section>
+
+<figure class="week">
+  <figcaption class="kicker">{t.dots.intro}</figcaption>
+  <ol class="dots" aria-label={t.dots.caption}>
+    {
+      t.dots.marks.map((mark, i) => (
+        <li>
+          <span class={`dot ${mark}`} aria-hidden="true" />
+          <span class="day">{t.dots.days[i]}</span>
+        </li>
+      ))
+    }
+  </ol>
+  <p class="week-caption">{t.dots.caption}</p>
+</figure>
+
+<ol class="steps">
+  {
+    t.steps.map((step, i) => (
+      <li class="step">
+        <div class="step-text">
+          <span class="num">{String(i + 1).padStart(2, '0')}</span>
+          <h2>{step.title}</h2>
+          <p>{step.body}</p>
+        </div>
+        <Image class="phone" src={shot(step.shot)} alt={step.alt} width={600} format="webp" quality={80} />
+      </li>
+    ))
+  }
+</ol>
+
+<section class="facts">
+  <h2>{t.facts.title}</h2>
+  <dl>
+    {
+      t.facts.items.map((item) => (
+        <div>
+          <dt>{item.label}</dt>
+          <dd>{item.body}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</section>
+
+<section class="plus">
+  <h2>{t.plus.title}</h2>
+  <p>{t.plus.body}</p>
+  <p><a href={localePath(lang, 'support')}>{t.more}</a></p>
+</section>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 48px;
+    align-items: center;
+    padding: 56px 0 40px;
+  }
+  .hero h1 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(38px, 6vw, 60px);
+    margin: 0 0 20px;
+  }
+  .lead {
+    font-size: 19px;
+    color: var(--ink-2);
+    max-width: 32em;
+  }
+  .soon,
+  .store {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 18px;
+    border-radius: 999px;
+    background: var(--green);
+    color: var(--paper);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  .hero-shot {
+    display: flex;
+    justify-content: center;
+  }
+  .phone {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 36px;
+    border: 1px solid var(--line);
+    box-shadow: 0 18px 40px rgb(0 0 0 / 0.12);
+  }
+  .week {
+    margin: 24px 0 72px;
+    padding: 32px 24px;
+    background: var(--green-soft);
+    border-radius: 6px;
+    text-align: left;
+  }
+  .kicker {
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 20px;
+  }
+  .dots {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: clamp(10px, 3vw, 28px);
+  }
+  .dots li {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+  }
+  .dot {
+    width: clamp(28px, 7vw, 44px);
+    height: clamp(28px, 7vw, 44px);
+    border-radius: 50%;
+    border: 3px solid var(--green);
+  }
+  .dot.done {
+    background: var(--green);
+  }
+  .day {
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+  .week-caption {
+    margin: 20px 0 0;
+  }
+  .steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 72px;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: 48px;
+    align-items: center;
+  }
+  .step:nth-child(even) .step-text {
+    order: 2;
+  }
+  .num {
+    font-family: var(--serif);
+    color: var(--green);
+    font-size: 20px;
+  }
+  .step h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(26px, 4vw, 34px);
+    margin: 4px 0 12px;
+  }
+  .step p {
+    color: var(--ink-2);
+    max-width: 30em;
+  }
+  .facts {
+    margin-top: 96px;
+    border-top: 1px solid var(--line);
+    padding-top: 40px;
+  }
+  .facts h2,
+  .plus h2 {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(26px, 4vw, 34px);
+  }
+  .facts dl {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px 48px;
+    margin: 0;
+  }
+  .facts dt {
+    font-weight: 700;
+  }
+  .facts dd {
+    margin: 4px 0 0;
+    color: var(--ink-2);
+  }
+  .plus {
+    margin-top: 72px;
+    max-width: 44em;
+  }
+  @media (max-width: 760px) {
+    .hero,
+    .step {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .hero {
+      padding-top: 32px;
+    }
+    .step:nth-child(even) .step-text {
+      order: 0;
+    }
+    .phone {
+      max-width: 260px;
+      justify-self: center;
+    }
+    .facts dl {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,5 @@
+# ビルドのスクリプト（postinstall など）を実行してよいパッケージ（pnpm 10 は既定で止める）
+onlyBuiltDependencies:
+  - esbuild
+  - sharp
+  - workerd

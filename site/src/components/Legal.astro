@@ -1,0 +1,38 @@
+---
+import { LEGAL_EFFECTIVE_DATE } from '../config';
+import { ui, type Lang } from '../i18n/ui';
+
+const { lang, title } = Astro.props as { lang: Lang; title: string };
+const t = ui[lang].legal;
+---
+<div class="narrow">
+
+<article class="legal">
+  <h1>{title}</h1>
+  {LEGAL_EFFECTIVE_DATE ? <p class="meta">{t.effective} {LEGAL_EFFECTIVE_DATE}</p> : <p class="draft">{t.draft}</p>}
+  <slot />
+</article>
+</div>
+
+<style>
+  .legal {
+    max-width: 44em;
+  }
+  .meta {
+    color: var(--ink-2);
+  }
+  .draft {
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    font-weight: 700;
+  }
+  .legal :global(h2) {
+    font-size: 20px;
+    margin-top: 32px;
+  }
+  .legal :global(li) {
+    margin: 4px 0;
+  }
+</style>
